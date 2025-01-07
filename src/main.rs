@@ -99,7 +99,11 @@ async fn login_handler(
                 "error": "Invalid username or password"
             }))
             .expect("Failed to render login template");
-        Html(rendered)
+        Response::builder()
+            .status(StatusCode::OK)
+            .header(header::CONTENT_TYPE, "text/html")
+            .body(rendered.into())
+            .unwrap()
     }
 }
 
