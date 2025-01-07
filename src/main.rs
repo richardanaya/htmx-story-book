@@ -29,13 +29,9 @@ async fn counter_handler(State(counter): State<Arc<AtomicU32>>) -> String {
 
 #[debug_handler]
 async fn index_handler(State(counter): State<Arc<AtomicU32>>) -> Html<String> {
-    let mut template = mustache::compile_str(include_str!("../templates/index.mustache"))
+    let mut compiler = mustache::compile_str(include_str!("../templates/index.mustache"))
         .expect("Failed to compile template");
     
-    // Register the signature partial
-    template.register_partial("signature", include_str!("../templates/signature.mustache"))
-        .expect("Failed to register signature partial");
-
     let mut data = HashMap::new();
     data.insert("title", "HTMX Counter Demo");
     data.insert("heading", "HTMX Counter Demo");
