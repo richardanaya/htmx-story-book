@@ -1,31 +1,31 @@
 use axum::{debug_handler, extract::State, response::Html, routing::get, Router};
-use std::{
-    collections::HashMap,
-    sync::{
-        atomic::{AtomicU32, Ordering},
-        Arc, Mutex,
-    },
+use handlebars::Handlebars;
+use serde_json::json;
+use std::sync::{
+    atomic::{AtomicU32, Ordering},
+    Arc,
 };
 
 struct AppState {
     counter: AtomicU32,
-    template: Mutex<mustache::Template>,
+    handlebars: Handlebars<'static>,
 }
 
 #[tokio::main]
 async fn main() {
-    // Create and compile template at startup
-    let template = mustache::register_template_file("templates/index.mustache")
-        .expect("Failed to compile template");
-
-    // Register the partial template
-    template
-        .register_template_file("signature", "templates/signature.mustache")
-        .expect("Failed to register partial");
+    let mut handlebars = Handlebars::new();
+    
+    // Register templates
+    handlebars
+        .register_template_file("index", "templates/index.hbs")
+        .expect("Failed to register index template");
+    handlebars
+        .register_template_file("signature", "templates/signature.hbs")
+        .expect("Failed to register signature partial");
 
     let state = Arc::new(AppState {
         counter: AtomicU32::new(0),
-        template: Mutex::new(template),
+        handlebars,
     });
 
     let app = Router::new()
@@ -47,16 +47,16 @@ async fn counter_handler(State(state): State<Arc<AppState>>) -> String {
 
 #[debug_handler]
 async fn index_handler(State(state): State<Arc<AppState>>) -> Html<String> {
-    let mut data = HashMap::new();
-    data.insert("title", "HTMX Counter Demo");
-    data.insert("heading", "HTMX Counter Demo");
     let count = state.counter.load(Ordering::Relaxed);
-    let count_str = count.to_string();
-    data.insert("count", &count_str);
+    
+    let data = json!({
+        "title": "HTMX Counter Demo",
+        "heading": "HTMX Counter Demo",
+        "count": count,
+    });
 
-    let template = state.template.lock().unwrap();
-    let rendered = template
-        .render_to_string(&data)
+    let rendered = state.handlebars
+        .render("index", &data)
         .expect("Failed to render template");
 
     Html(rendered)
