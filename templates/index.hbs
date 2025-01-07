@@ -6,20 +6,24 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>{{heading}}</h1>
-    <div>
-        Count: <span id="counter" hx-get="/counter" hx-trigger="click" hx-swap="innerHTML">{{count}}</span>
-        <p><small>(Click the number to increment)</small></p>
-    </div>
-    <div>
-        {{#if username}}
-            {{> logged_in}}
-        {{else}}
-            {{> login}}
-        {{/if}}
-    </div>
-    <div>
-        {{> signature}}
-    </div>
+    <header>
+        <h1>{{heading}}</h1>
+        <div class="auth-section">
+            {{#if username}}
+                {{> logged_in}}
+            {{else}}
+                {{> login}}
+            {{/if}}
+        </div>
+    </header>
+    <main>
+        <div>
+            Count: <span id="counter" hx-get="/counter" hx-trigger="click" hx-swap="innerHTML">{{count}}</span>
+            <p><small>(Click the number to increment)</small></p>
+        </div>
+        <div>
+            {{> signature}}
+        </div>
+    </main>
 </body>
 </html>
