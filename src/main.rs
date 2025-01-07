@@ -59,13 +59,13 @@ async fn counter_handler(State(state): State<Arc<AppState>>) -> String {
     new_count.to_string()
 }
 
-#[debug_handler]
 #[derive(Deserialize)]
 struct LoginForm {
     username: String,
     password: String,
 }
 
+#[debug_handler]
 async fn login_handler(
     State(state): State<Arc<AppState>>,
     Form(form): Form<LoginForm>,
