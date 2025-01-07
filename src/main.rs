@@ -1,14 +1,14 @@
 use axum::{
     debug_handler,
-    extract::{State, Form},
+    extract::{Form, State},
+    http::{header, StatusCode},
+    http::{header::COOKIE, HeaderMap},
     response::{Html, Response},
-    http::{HeaderMap, header::COOKIE},
-    routing::{get, post}, 
+    routing::{get, post},
     Router,
-    http::{header, StatusCode}
 };
-use serde::Deserialize;
 use handlebars::Handlebars;
+use serde::Deserialize;
 use serde_json::json;
 use std::sync::{
     atomic::{AtomicU32, Ordering},
@@ -23,7 +23,7 @@ struct AppState {
 #[tokio::main]
 async fn main() {
     let mut handlebars = Handlebars::new();
-    
+
     // Register templates
     handlebars
         .register_template_file("index", "templates/index.hbs")
@@ -76,29 +76,35 @@ async fn login_handler(
         let data = json!({
             "username": form.username,
         });
-        let rendered = state.handlebars
+        let rendered = state
+            .handlebars
             .render("logged_in", &data)
             .expect("Failed to render logged in template");
-        
+
         let auth_cookie = json!({
             "logged_in": true,
             "username": form.username
-        }).to_string();
-        
+        })
+        .to_string();
+
         Response::builder()
             .status(StatusCode::OK)
             .header(
                 header::SET_COOKIE,
-                format!("auth={}; Path=/; HttpOnly", auth_cookie)
+                format!("auth={}; Path=/; HttpOnly", auth_cookie),
             )
             .header(header::CONTENT_TYPE, "text/html")
             .body(rendered.into())
             .unwrap()
     } else {
-        let rendered = state.handlebars
-            .render("login", &json!({
-                "error": "Invalid username or password"
-            }))
+        let rendered = state
+            .handlebars
+            .render(
+                "login",
+                &json!({
+                    "error": "Invalid username or password"
+                }),
+            )
             .expect("Failed to render login template");
         Response::builder()
             .status(StatusCode::OK)
@@ -113,7 +119,7 @@ async fn index_handler(
     headers: axum::http::HeaderMap,
 ) -> Html<String> {
     let count = state.counter.load(Ordering::Relaxed);
-    
+
     let mut data = json!({
         "title": "HTMX Counter Demo",
         "heading": "HTMX Counter Demo",
@@ -122,20 +128,24 @@ async fn index_handler(
 
     if let Some(cookie) = headers.get(COOKIE) {
         if let Some(cookie_str) = cookie.to_str().ok() {
-            if let Some(auth_cookie) = cookie_str.split(';')
+            if let Some(auth_cookie) = cookie_str
+                .split(';')
                 .find(|s| s.trim().starts_with("auth="))
-                .and_then(|s| s.trim().strip_prefix("auth=")) {
+                .and_then(|s| s.trim().strip_prefix("auth="))
+            {
                 if let Ok(auth_data) = serde_json::from_str::<serde_json::Value>(auth_cookie) {
-                if auth_data["logged_in"].as_bool().unwrap_or(false) {
-                    if let Some(username) = auth_data["username"].as_str() {
-                        data["username"] = json!(username);
+                    if auth_data["logged_in"].as_bool().unwrap_or(false) {
+                        if let Some(username) = auth_data["username"].as_str() {
+                            data["username"] = json!(username);
+                        }
                     }
                 }
             }
         }
     }
 
-    let rendered = state.handlebars
+    let rendered = state
+        .handlebars
         .render("index", &data)
         .expect("Failed to render template");
 
