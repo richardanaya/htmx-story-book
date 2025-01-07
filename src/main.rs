@@ -47,6 +47,7 @@ async fn main() {
         .route("/", get(index_handler))
         .route("/counter", get(counter_handler))
         .route("/login", post(login_handler))
+        .route("/logout", post(logout_handler))
         .with_state(state);
 
     println!("Server starting on http://localhost:3000");
@@ -112,6 +113,24 @@ async fn login_handler(
             .body(rendered.into())
             .unwrap()
     }
+}
+
+async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
+    let data = json!({});
+    let rendered = state
+        .handlebars
+        .render("index", &data)
+        .expect("Failed to render template");
+
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(
+            header::SET_COOKIE,
+            "auth=; Path=/; HttpOnly; Max-Age=0"
+        )
+        .header(header::CONTENT_TYPE, "text/html")
+        .body(rendered.into())
+        .unwrap()
 }
 
 async fn index_handler(
