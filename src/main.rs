@@ -116,7 +116,12 @@ async fn login_handler(
 }
 
 async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
-    let data = json!({});
+    let count = state.counter.load(Ordering::Relaxed);
+    let data = json!({
+        "title": "HTMX Counter Demo",
+        "heading": "HTMX Counter Demo",
+        "count": count,
+    });
     let rendered = state
         .handlebars
         .render("index", &data)
