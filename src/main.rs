@@ -30,7 +30,6 @@ async fn counter_handler(State(counter): State<Arc<AtomicU32>>) -> String {
 #[debug_handler]
 async fn index_handler(State(counter): State<Arc<AtomicU32>>) -> Html<String> {
     let template = mustache::compile_str(include_str!("../templates/index.mustache"))
-        .and_then(|t| t.render_str(include_str!("../templates/signature.mustache")))
         .expect("Failed to compile template");
 
     let mut data = HashMap::new();
@@ -39,7 +38,7 @@ async fn index_handler(State(counter): State<Arc<AtomicU32>>) -> Html<String> {
     let count = counter.load(Ordering::Relaxed);
     let count_str = count.to_string();
     data.insert("count", &count_str);
-
+    
     let rendered = template.render_to_string(&data)
         .expect("Failed to render template");
 
