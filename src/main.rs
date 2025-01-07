@@ -1,9 +1,10 @@
 use axum::{
     debug_handler, 
     extract::{State, Form},
-    response::Html, 
+    response::{Html, Response}, 
     routing::{get, post}, 
-    Router
+    Router,
+    http::{header, StatusCode}
 };
 use serde::Deserialize;
 use handlebars::Handlebars;
@@ -69,7 +70,7 @@ struct LoginForm {
 async fn login_handler(
     State(state): State<Arc<AppState>>,
     Form(form): Form<LoginForm>,
-) -> Html<String> {
+) -> Response {
     if form.username == "richard" && form.password == "secret" {
         let data = json!({
             "username": form.username,
@@ -77,7 +78,21 @@ async fn login_handler(
         let rendered = state.handlebars
             .render("logged_in", &data)
             .expect("Failed to render logged in template");
-        Html(rendered)
+        
+        let auth_cookie = json!({
+            "logged_in": true,
+            "username": form.username
+        }).to_string();
+        
+        Response::builder()
+            .status(StatusCode::OK)
+            .header(
+                header::SET_COOKIE,
+                format!("auth={}; Path=/; HttpOnly", auth_cookie)
+            )
+            .header(header::CONTENT_TYPE, "text/html")
+            .body(rendered.into())
+            .unwrap()
     } else {
         let rendered = state.handlebars
             .render("login", &json!({
