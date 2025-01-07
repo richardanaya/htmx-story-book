@@ -29,8 +29,10 @@ async fn counter_handler(State(counter): State<Arc<AtomicU32>>) -> String {
 
 #[debug_handler]
 async fn index_handler(State(counter): State<Arc<AtomicU32>>) -> Html<String> {
+    let signature = include_str!("../templates/signature.mustache");
     let mut compiler = mustache::compile_str(include_str!("../templates/index.mustache"))
         .expect("Failed to compile template");
+    compiler.register_partial("signature", signature);
     
     let mut data = HashMap::new();
     data.insert("title", "HTMX Counter Demo");
