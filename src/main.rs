@@ -1,6 +1,6 @@
 use axum::{
     debug_handler, 
-    extract::{State, Form},
+    extract::{State, Form, Cookie},
     response::{Html, Response}, 
     routing::{get, post}, 
     Router,
@@ -107,14 +107,29 @@ async fn login_handler(
     }
 }
 
-async fn index_handler(State(state): State<Arc<AppState>>) -> Html<String> {
+async fn index_handler(
+    State(state): State<Arc<AppState>>,
+    cookie: Option<Cookie>,
+) -> Html<String> {
     let count = state.counter.load(Ordering::Relaxed);
     
-    let data = json!({
+    let mut data = json!({
         "title": "HTMX Counter Demo",
         "heading": "HTMX Counter Demo",
         "count": count,
     });
+
+    if let Some(cookie) = cookie {
+        if cookie.name() == "auth" {
+            if let Ok(auth_data) = serde_json::from_str::<serde_json::Value>(cookie.value()) {
+                if auth_data["logged_in"].as_bool().unwrap_or(false) {
+                    if let Some(username) = auth_data["username"].as_str() {
+                        data["username"] = json!(username);
+                    }
+                }
+            }
+        }
+    }
 
     let rendered = state.handlebars
         .render("index", &data)
