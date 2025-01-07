@@ -3,12 +3,13 @@ use axum::{
     Router,
     response::Html,
     extract::State,
+    debug_handler,
 };
-use std::{collections::HashMap, sync::atomic::{AtomicU32, Ordering}};
+use std::{collections::HashMap, sync::{atomic::{AtomicU32, Ordering}, Arc}};
 
 #[tokio::main]
 async fn main() {
-    let counter = AtomicU32::new(0);
+    let counter = Arc::new(AtomicU32::new(0));
     let app = Router::new()
         .route("/", get(index_handler))
         .route("/counter", get(counter_handler))
@@ -20,19 +21,22 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn counter_handler(State(counter): State<AtomicU32>) -> String {
+#[debug_handler]
+async fn counter_handler(State(counter): State<Arc<AtomicU32>>) -> String {
     let new_count = counter.fetch_add(1, Ordering::Relaxed) + 1;
     new_count.to_string()
 }
 
-async fn index_handler(State(counter): State<AtomicU32>) -> Html<String> {
+#[debug_handler]
+async fn index_handler(State(counter): State<Arc<AtomicU32>>) -> Html<String> {
     let template = mustache::compile_str(include_str!("../templates/index.mustache"))
         .expect("Failed to compile template");
 
     let mut data = HashMap::new();
     data.insert("title", "HTMX Counter Demo");
     data.insert("heading", "HTMX Counter Demo");
-    data.insert("count", &counter.load(Ordering::Relaxed).to_string());
+    let count = counter.load(Ordering::Relaxed);
+    data.insert("count", &count.to_string());
 
     let rendered = template.render_to_string(&data)
         .expect("Failed to render template");
