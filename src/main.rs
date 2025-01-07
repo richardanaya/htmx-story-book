@@ -2,7 +2,7 @@ use axum::{
     debug_handler,
     extract::{Form, State},
     http::{header, StatusCode},
-    http::{header::COOKIE, HeaderMap},
+    http::header::COOKIE,
     response::{Html, Response},
     routing::{get, post},
     Router,
@@ -127,17 +127,13 @@ async fn index_handler(
     });
 
     if let Some(cookie) = headers.get(COOKIE) {
-        println!("Found cookie header: {:?}", cookie);
         if let Some(cookie_str) = cookie.to_str().ok() {
-            println!("Cookie string: {}", cookie_str);
             if let Some(auth_cookie) = cookie_str
                 .split(';')
                 .find(|s| s.trim().starts_with("auth="))
                 .and_then(|s| s.trim().strip_prefix("auth="))
             {
-                println!("Auth cookie value: {}", auth_cookie);
                 if let Ok(auth_data) = serde_json::from_str::<serde_json::Value>(auth_cookie) {
-                    println!("Parsed auth data: {:?}", auth_data);
                     if auth_data["logged_in"].as_bool().unwrap_or(false) {
                         if let Some(username) = auth_data["username"].as_str() {
                             data["username"] = json!(username);

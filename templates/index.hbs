@@ -15,7 +15,11 @@
         <p><small>(Click the number to increment)</small></p>
     </div>
     <div>
-        {{> login}}
+        {{#if username}}
+            {{> logged_in}}
+        {{else}}
+            {{> login}}
+        {{/if}}
     </div>
     <div>
         {{> signature}}
