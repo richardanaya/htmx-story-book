@@ -14,10 +14,13 @@ struct AppState {
 
 #[tokio::main]
 async fn main() {
-    // Load and compile templates at startup
-    let index_template = include_str!("../templates/index.mustache");
-    let template = mustache::compile_str(index_template)
+    // Create and compile template at startup
+    let template = mustache::compile_file("templates/index.mustache")
         .expect("Failed to compile template");
+    
+    // Register the partial template
+    template.register_template_file("signature", "templates/signature.mustache")
+        .expect("Failed to register partial");
     
     let state = Arc::new(AppState {
         counter: AtomicU32::new(0),
