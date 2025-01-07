@@ -1,18 +1,16 @@
-<div class="login-form">
+<section>
     <form hx-post="/login" hx-swap="outerHTML">
         {{#if error}}
-        <div class="error" style="color: red; margin-bottom: 10px;">
-            {{error}}
-        </div>
+        <p role="alert">{{error}}</p>
         {{/if}}
-        <div>
+        <fieldset>
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
-        </div>
-        <div>
+        </fieldset>
+        <fieldset>
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
-        </div>
+        </fieldset>
         <button type="submit">Login</button>
     </form>
-</div>
+</section>
