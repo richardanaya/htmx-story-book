@@ -7,6 +7,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use tower_http::services::ServeDir;
 use handlebars::Handlebars;
 use serde::Deserialize;
 use serde_json::json;
@@ -44,6 +45,7 @@ async fn main() {
     });
 
     let app = Router::new()
+        .nest_service("/static", ServeDir::new("static"))
         .route("/", get(index_handler))
         .route("/counter", get(counter_handler))
         .route("/login", post(login_handler))
