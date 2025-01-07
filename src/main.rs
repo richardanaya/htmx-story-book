@@ -5,15 +5,29 @@ use axum::{
     extract::State,
     debug_handler,
 };
-use std::{collections::HashMap, sync::{atomic::{AtomicU32, Ordering}, Arc}};
+use std::{collections::HashMap, sync::{atomic::{AtomicU32, Ordering}, Arc, Mutex}};
+
+struct AppState {
+    counter: AtomicU32,
+    template: Mutex<mustache::Template>,
+}
 
 #[tokio::main]
 async fn main() {
-    let counter = Arc::new(AtomicU32::new(0));
+    // Load and compile templates at startup
+    let index_template = include_str!("../templates/index.mustache");
+    let template = mustache::compile_str(index_template)
+        .expect("Failed to compile template");
+    
+    let state = Arc::new(AppState {
+        counter: AtomicU32::new(0),
+        template: Mutex::new(template),
+    });
+
     let app = Router::new()
         .route("/", get(index_handler))
         .route("/counter", get(counter_handler))
-        .with_state(counter);
+        .with_state(state);
 
     println!("Server starting on http://localhost:3000");
     
@@ -22,24 +36,22 @@ async fn main() {
 }
 
 #[debug_handler]
-async fn counter_handler(State(counter): State<Arc<AtomicU32>>) -> String {
-    let new_count = counter.fetch_add(1, Ordering::Relaxed) + 1;
+async fn counter_handler(State(state): State<Arc<AppState>>) -> String {
+    let new_count = state.counter.fetch_add(1, Ordering::Relaxed) + 1;
     new_count.to_string()
 }
 
 #[debug_handler]
-async fn index_handler(State(counter): State<Arc<AtomicU32>>) -> Html<String> {
-    let compiler = mustache::compile_str(include_str!("../templates/index.mustache"))
-        .expect("Failed to compile template");
-    
+async fn index_handler(State(state): State<Arc<AppState>>) -> Html<String> {
     let mut data = HashMap::new();
     data.insert("title", "HTMX Counter Demo");
     data.insert("heading", "HTMX Counter Demo");
-    let count = counter.load(Ordering::Relaxed);
+    let count = state.counter.load(Ordering::Relaxed);
     let count_str = count.to_string();
     data.insert("count", &count_str);
     
-    let rendered = compiler.render_to_string(&data)
+    let template = state.template.lock().unwrap();
+    let rendered = template.render_to_string(&data)
         .expect("Failed to render template");
 
     Html(rendered)
