@@ -80,7 +80,9 @@ async fn login_handler(
         Html(rendered)
     } else {
         let rendered = state.handlebars
-            .render("login", &json!({}))
+            .render("login", &json!({
+                "error": "Invalid username or password"
+            }))
             .expect("Failed to render login template");
         Html(rendered)
     }

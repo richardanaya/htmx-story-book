@@ -1,5 +1,10 @@
 <div class="login-form">
     <form hx-post="/login" hx-swap="outerHTML">
+        {{#if error}}
+        <div class="error" style="color: red; margin-bottom: 10px;">
+            {{error}}
+        </div>
+        {{/if}}
         <div>
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
