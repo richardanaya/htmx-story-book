@@ -5,6 +5,10 @@ body {
     margin: 0 auto;
     padding: 1.5rem;
     line-height: 1.5;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 /* Typography */
