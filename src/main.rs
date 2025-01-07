@@ -39,7 +39,7 @@ async fn index_handler(State(counter): State<Arc<AtomicU32>>) -> Html<String> {
     let count_str = count.to_string();
     data.insert("count", &count_str);
     
-    let rendered = template.render_to_string(&data)
+    let rendered = compiler.render_to_string(&data)
         .expect("Failed to render template");
 
     Html(rendered)
