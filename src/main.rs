@@ -1,7 +1,8 @@
 use axum::{
-    debug_handler, 
-    extract::{State, Form, Cookie},
-    response::{Html, Response}, 
+    debug_handler,
+    extract::{State, Form},
+    response::{Html, Response},
+    http::header::COOKIE,
     routing::{get, post}, 
     Router,
     http::{header, StatusCode}
@@ -109,7 +110,7 @@ async fn login_handler(
 
 async fn index_handler(
     State(state): State<Arc<AppState>>,
-    cookie: Option<Cookie>,
+    headers: axum::http::HeaderMap,
 ) -> Html<String> {
     let count = state.counter.load(Ordering::Relaxed);
     
@@ -119,9 +120,12 @@ async fn index_handler(
         "count": count,
     });
 
-    if let Some(cookie) = cookie {
-        if cookie.name() == "auth" {
-            if let Ok(auth_data) = serde_json::from_str::<serde_json::Value>(cookie.value()) {
+    if let Some(cookie) = headers.get(COOKIE) {
+        if let Some(cookie_str) = cookie.to_str().ok() {
+            if let Some(auth_cookie) = cookie_str.split(';')
+                .find(|s| s.trim().starts_with("auth="))
+                .and_then(|s| s.trim().strip_prefix("auth=")) {
+                if let Ok(auth_data) = serde_json::from_str::<serde_json::Value>(auth_cookie) {
                 if auth_data["logged_in"].as_bool().unwrap_or(false) {
                     if let Some(username) = auth_data["username"].as_str() {
                         data["username"] = json!(username);
