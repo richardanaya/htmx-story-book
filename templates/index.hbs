@@ -3,12 +3,19 @@
 <head>
     <title>{{title}}</title>
     <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+    <style>
+        .login-form div { margin: 10px 0; }
+        .logged-in { margin: 20px 0; }
+    </style>
 </head>
 <body>
     <h1>{{heading}}</h1>
     <div>
         Count: <span id="counter" hx-get="/counter" hx-trigger="click" hx-swap="innerHTML">{{count}}</span>
         <p><small>(Click the number to increment)</small></p>
+    </div>
+    <div>
+        {{> login}}
     </div>
     <div>
         {{> signature}}

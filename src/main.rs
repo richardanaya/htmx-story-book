@@ -1,4 +1,11 @@
-use axum::{debug_handler, extract::State, response::Html, routing::get, Router};
+use axum::{
+    debug_handler, 
+    extract::{State, Form},
+    response::Html, 
+    routing::{get, post}, 
+    Router
+};
+use serde::Deserialize;
 use handlebars::Handlebars;
 use serde_json::json;
 use std::sync::{
@@ -22,6 +29,12 @@ async fn main() {
     handlebars
         .register_template_file("signature", "templates/signature.hbs")
         .expect("Failed to register signature partial");
+    handlebars
+        .register_template_file("login", "templates/login.hbs")
+        .expect("Failed to register login partial");
+    handlebars
+        .register_template_file("logged_in", "templates/logged_in.hbs")
+        .expect("Failed to register logged in template");
 
     let state = Arc::new(AppState {
         counter: AtomicU32::new(0),
@@ -31,6 +44,7 @@ async fn main() {
     let app = Router::new()
         .route("/", get(index_handler))
         .route("/counter", get(counter_handler))
+        .route("/login", post(login_handler))
         .with_state(state);
 
     println!("Server starting on http://localhost:3000");
@@ -46,6 +60,32 @@ async fn counter_handler(State(state): State<Arc<AppState>>) -> String {
 }
 
 #[debug_handler]
+#[derive(Deserialize)]
+struct LoginForm {
+    username: String,
+    password: String,
+}
+
+async fn login_handler(
+    State(state): State<Arc<AppState>>,
+    Form(form): Form<LoginForm>,
+) -> Html<String> {
+    if form.username == "richard" && form.password == "secret" {
+        let data = json!({
+            "username": form.username,
+        });
+        let rendered = state.handlebars
+            .render("logged_in", &data)
+            .expect("Failed to render logged in template");
+        Html(rendered)
+    } else {
+        let rendered = state.handlebars
+            .render("login", &json!({}))
+            .expect("Failed to render login template");
+        Html(rendered)
+    }
+}
+
 async fn index_handler(State(state): State<Arc<AppState>>) -> Html<String> {
     let count = state.counter.load(Ordering::Relaxed);
     
