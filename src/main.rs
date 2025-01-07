@@ -36,7 +36,8 @@ async fn index_handler(State(counter): State<Arc<AtomicU32>>) -> Html<String> {
     data.insert("title", "HTMX Counter Demo");
     data.insert("heading", "HTMX Counter Demo");
     let count = counter.load(Ordering::Relaxed);
-    data.insert("count", &count.to_string());
+    let count_str = count.to_string();
+    data.insert("count", &count_str);
 
     let rendered = template.render_to_string(&data)
         .expect("Failed to render template");
