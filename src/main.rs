@@ -7,6 +7,8 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use jsonwebtoken::{encode, decode, Header, EncodingKey, DecodingKey, Validation, errors::Error as JwtError};
+use std::time::{SystemTime, UNIX_EPOCH};
 use tower_http::services::ServeDir;
 use handlebars::Handlebars;
 use serde::Deserialize;
@@ -15,6 +17,15 @@ use std::sync::{
     atomic::{AtomicU32, Ordering},
     Arc,
 };
+
+const JWT_SECRET: &[u8] = b"your-super-secret-key";
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Claims {
+    sub: String,  // username
+    exp: usize,   // expiration time
+    iat: usize,   // issued at
+}
 
 struct AppState {
     counter: AtomicU32,
@@ -76,25 +87,37 @@ async fn login_handler(
     Form(form): Form<LoginForm>,
 ) -> Response {
     if form.username == "richard" && form.password == "secret" {
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as usize;
+            
+        let claims = Claims {
+            sub: form.username.clone(),
+            exp: now + 3600, // Token expires in 1 hour
+            iat: now,
+        };
+
+        let token = encode(
+            &Header::default(),
+            &claims,
+            &EncodingKey::from_secret(JWT_SECRET)
+        ).unwrap();
+
         let data = json!({
             "username": form.username,
         });
+        
         let rendered = state
             .handlebars
             .render("logged_in", &data)
             .expect("Failed to render logged in template");
 
-        let auth_cookie = json!({
-            "logged_in": true,
-            "username": form.username
-        })
-        .to_string();
-
         Response::builder()
             .status(StatusCode::OK)
             .header(
                 header::SET_COOKIE,
-                format!("auth={}; Path=/; HttpOnly", auth_cookie),
+                format!("auth={}; Path=/; HttpOnly; SameSite=Strict", token),
             )
             .header(header::CONTENT_TYPE, "text/html")
             .body(rendered.into())
@@ -154,17 +177,17 @@ async fn index_handler(
 
     if let Some(cookie) = headers.get(COOKIE) {
         if let Some(cookie_str) = cookie.to_str().ok() {
-            if let Some(auth_cookie) = cookie_str
+            if let Some(token) = cookie_str
                 .split(';')
                 .find(|s| s.trim().starts_with("auth="))
                 .and_then(|s| s.trim().strip_prefix("auth="))
             {
-                if let Ok(auth_data) = serde_json::from_str::<serde_json::Value>(auth_cookie) {
-                    if auth_data["logged_in"].as_bool().unwrap_or(false) {
-                        if let Some(username) = auth_data["username"].as_str() {
-                            data["username"] = json!(username);
-                        }
-                    }
+                if let Ok(token_data) = decode::<Claims>(
+                    token,
+                    &DecodingKey::from_secret(JWT_SECRET),
+                    &Validation::default()
+                ) {
+                    data["username"] = json!(token_data.claims.sub);
                 }
             }
         }
