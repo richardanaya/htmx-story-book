@@ -106,6 +106,7 @@ async fn login_handler(
 
         let data = json!({
             "username": form.username,
+            "error": null
         });
         
         let rendered = state
