@@ -121,7 +121,8 @@ async fn login_handler(
                 format!("auth={}; Path=/; HttpOnly; SameSite=Strict", token),
             )
             .header(header::CONTENT_TYPE, "text/html")
-            .header("HX-Trigger", "login-success")  // Add this header
+            .header("HX-Trigger", "login-success")
+            .header("HX-Refresh", "true")  // Add this header for full page refresh
             .body(rendered.into())
             .unwrap()
     } else {
