@@ -143,8 +143,8 @@ async fn login_handler(
 async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
     let count = state.counter.load(Ordering::Relaxed);
     let data = json!({
-        "title": "HTMX Counter Demo",
-        "heading": "HTMX Counter Demo",
+        "title": "Storybuilder",
+        "heading": "Storybuilder",
         "count": count,
     });
     let rendered = state
@@ -170,8 +170,8 @@ async fn index_handler(
     let count = state.counter.load(Ordering::Relaxed);
 
     let mut data = json!({
-        "title": "HTMX Counter Demo",
-        "heading": "HTMX Counter Demo",
+        "title": "Storybuilder",
+        "heading": "Storybuilder",
         "count": count,
     });
 
