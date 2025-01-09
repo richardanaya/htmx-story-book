@@ -58,8 +58,11 @@ async fn main() {
         .register_template_file("logged_in", "templates/logged_in.hbs")
         .expect("Failed to register logged in template");
     handlebars
-        .register_template_file("non_logged_in_content", "templates/non_logged_in_content.hbs")
+        .register_template_file("non_logged_in_content", "templates/pages/non_logged_in_content.hbs")
         .expect("Failed to register non logged in content template");
+    handlebars
+        .register_template_file("logged_in_content", "templates/pages/logged_in_content.hbs")
+        .expect("Failed to register logged in content template");
 
     let state = Arc::new(AppState {
         counter: AtomicU32::new(0),
