@@ -7,11 +7,11 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use jsonwebtoken::{encode, decode, Header, EncodingKey, DecodingKey, Validation, errors::Error as JwtError};
+use jsonwebtoken::{encode, decode, Header, EncodingKey, DecodingKey, Validation};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tower_http::services::ServeDir;
 use handlebars::Handlebars;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize}; 
 use serde_json::json;
 use std::sync::{
     atomic::{AtomicU32, Ordering},
@@ -20,7 +20,7 @@ use std::sync::{
 
 const JWT_SECRET: &[u8] = b"your-super-secret-key";
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)] 
 struct Claims {
     sub: String,  // username
     exp: usize,   // expiration time
