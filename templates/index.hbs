@@ -18,13 +18,7 @@
     </header>
     <main>
         {{#if username}}
-            <div>
-                Count: <span id="counter" hx-get="/counter" hx-trigger="click" hx-swap="innerHTML">{{count}}</span>
-                <p><small>(Click the number to increment)</small></p>
-            </div>
-            <div>
-                {{> signature}}
-            </div>
+            {{> logged_in_content}}
         {{else}}
             {{> non_logged_in_content}}
         {{/if}}
