@@ -121,6 +121,7 @@ async fn login_handler(
                 format!("auth={}; Path=/; HttpOnly; SameSite=Strict", token),
             )
             .header(header::CONTENT_TYPE, "text/html")
+            .header("HX-Trigger", "login-success")  // Add this header
             .body(rendered.into())
             .unwrap()
     } else {
