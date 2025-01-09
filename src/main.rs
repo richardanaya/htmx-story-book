@@ -81,12 +81,18 @@ struct LoginForm {
     password: String,
 }
 
+fn validate_credentials(username: &str, password: &str) -> bool {
+    // For now, we have a single hardcoded user
+    // In a real application, this would check against a database
+    username == "richard" && password == "secret"
+}
+
 #[debug_handler]
 async fn login_handler(
     State(state): State<Arc<AppState>>,
     Form(form): Form<LoginForm>,
 ) -> Response {
-    if form.username == "richard" && form.password == "secret" {
+    if validate_credentials(&form.username, &form.password) {
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
