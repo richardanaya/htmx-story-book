@@ -18,7 +18,15 @@ use std::sync::{
     Arc,
 };
 
-const JWT_SECRET: &[u8] = b"your-super-secret-key";
+use dotenvy::dotenv;
+use std::env;
+
+fn get_jwt_secret() -> Vec<u8> {
+    dotenv().ok();
+    env::var("JWT_SECRET")
+        .expect("JWT_SECRET must be set in .env file")
+        .into_bytes()
+}
 
 #[derive(Debug, Serialize, Deserialize)] 
 struct Claims {
@@ -107,7 +115,7 @@ async fn login_handler(
         let token = encode(
             &Header::default(),
             &claims,
-            &EncodingKey::from_secret(JWT_SECRET)
+            &EncodingKey::from_secret(&get_jwt_secret())
         ).unwrap();
 
         let data = json!({
@@ -193,7 +201,7 @@ async fn index_handler(
             {
                 if let Ok(token_data) = decode::<Claims>(
                     token,
-                    &DecodingKey::from_secret(JWT_SECRET),
+                    &DecodingKey::from_secret(&get_jwt_secret()),
                     &Validation::default()
                 ) {
                     data["username"] = json!(token_data.claims.sub);
