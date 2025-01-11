@@ -35,9 +35,137 @@ struct Claims {
     iat: usize,   // issued at
 }
 
+#[derive(Debug, Clone)]
+struct Book {
+    id: u32,
+    title: String,
+    summary: String,
+    pages: Vec<Page>,
+    starting_page: u32,
+}
+
+#[derive(Debug, Clone)]
+struct Page {
+    id: u32,
+    content: String,
+    choices: Vec<Choice>,
+}
+
+#[derive(Debug, Clone)]
+struct Choice {
+    text: String,
+    target_page_id: u32,
+}
+
 struct AppState {
     counter: AtomicU32,
     handlebars: Handlebars<'static>,
+    library: Vec<Book>,
+}
+
+fn generate_fake_library() -> Vec<Book> {
+    vec![
+        Book {
+            id: 1,
+            title: "The Haunted Mansion".to_string(),
+            summary: "Explore a spooky mansion full of secrets".to_string(),
+            starting_page: 101,
+            pages: vec![
+                Page {
+                    id: 101,
+                    content: "You stand before a creaky old mansion. Do you:".to_string(),
+                    choices: vec![
+                        Choice {
+                            text: "Enter through the front door".to_string(),
+                            target_page_id: 102,
+                        },
+                        Choice {
+                            text: "Sneak around to the back".to_string(),
+                            target_page_id: 103,
+                        },
+                    ],
+                },
+                Page {
+                    id: 102,
+                    content: "The front door creaks open. Inside is a dark hallway. Do you:".to_string(),
+                    choices: vec![
+                        Choice {
+                            text: "Light a match and explore".to_string(),
+                            target_page_id: 104,
+                        },
+                        Choice {
+                            text: "Feel your way in the dark".to_string(),
+                            target_page_id: 105,
+                        },
+                    ],
+                },
+                Page {
+                    id: 103,
+                    content: "You find a broken window at the back. Do you:".to_string(),
+                    choices: vec![
+                        Choice {
+                            text: "Climb through carefully".to_string(),
+                            target_page_id: 106,
+                        },
+                        Choice {
+                            text: "Look for another way in".to_string(),
+                            target_page_id: 101,
+                        },
+                    ],
+                },
+            ],
+        },
+        Book {
+            id: 2,
+            title: "Space Station Omega".to_string(),
+            summary: "A sci-fi adventure in deep space".to_string(),
+            starting_page: 201,
+            pages: vec![
+                Page {
+                    id: 201,
+                    content: "The space station alarms are blaring! Do you:".to_string(),
+                    choices: vec![
+                        Choice {
+                            text: "Head to the control room".to_string(),
+                            target_page_id: 202,
+                        },
+                        Choice {
+                            text: "Check the engineering bay".to_string(),
+                            target_page_id: 203,
+                        },
+                    ],
+                },
+                Page {
+                    id: 202,
+                    content: "You reach the control room. The main console is sparking! Do you:".to_string(),
+                    choices: vec![
+                        Choice {
+                            text: "Attempt to repair it".to_string(),
+                            target_page_id: 204,
+                        },
+                        Choice {
+                            text: "Call for help on the comms".to_string(),
+                            target_page_id: 205,
+                        },
+                    ],
+                },
+                Page {
+                    id: 203,
+                    content: "In engineering, you see a coolant leak. Do you:".to_string(),
+                    choices: vec![
+                        Choice {
+                            text: "Try to seal the leak".to_string(),
+                            target_page_id: 206,
+                        },
+                        Choice {
+                            text: "Evacuate the area".to_string(),
+                            target_page_id: 207,
+                        },
+                    ],
+                },
+            ],
+        },
+    ]
 }
 
 #[tokio::main]
@@ -67,6 +195,7 @@ async fn main() {
     let state = Arc::new(AppState {
         counter: AtomicU32::new(0),
         handlebars,
+        library: generate_fake_library(),
     });
 
     let app = Router::new()
@@ -75,6 +204,9 @@ async fn main() {
         .route("/counter", get(counter_handler))
         .route("/login", post(login_handler))
         .route("/logout", post(logout_handler))
+        .route("/books", get(list_books_handler))
+        .route("/books/:id", get(view_book_handler))
+        .route("/books/:id/pages/:page_id", get(view_page_handler))
         .with_state(state);
 
     println!("Server starting on http://localhost:3000");
@@ -184,6 +316,74 @@ async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
         .header(header::CONTENT_TYPE, "text/html")
         .body(rendered.into())
         .unwrap()
+}
+
+// Add these new handlers after the existing ones
+
+#[debug_handler]
+async fn list_books_handler(
+    State(state): State<Arc<AppState>>,
+) -> Html<String> {
+    let data = json!({
+        "books": state.library,
+    });
+
+    let rendered = state
+        .handlebars
+        .render("books", &data)
+        .expect("Failed to render books template");
+
+    Html(rendered)
+}
+
+#[debug_handler]
+async fn view_book_handler(
+    State(state): State<Arc<AppState>>,
+    axum::extract::Path(book_id): axum::extract::Path<u32>,
+) -> Html<String> {
+    let book = state.library
+        .iter()
+        .find(|b| b.id == book_id)
+        .expect("Book not found");
+
+    let data = json!({
+        "book": book,
+    });
+
+    let rendered = state
+        .handlebars
+        .render("book", &data)
+        .expect("Failed to render book template");
+
+    Html(rendered)
+}
+
+#[debug_handler]
+async fn view_page_handler(
+    State(state): State<Arc<AppState>>,
+    axum::extract::Path((book_id, page_id)): axum::extract::Path<(u32, u32)>,
+) -> Html<String> {
+    let book = state.library
+        .iter()
+        .find(|b| b.id == book_id)
+        .expect("Book not found");
+
+    let page = book.pages
+        .iter()
+        .find(|p| p.id == page_id)
+        .expect("Page not found");
+
+    let data = json!({
+        "book": book,
+        "page": page,
+    });
+
+    let rendered = state
+        .handlebars
+        .render("page", &data)
+        .expect("Failed to render page template");
+
+    Html(rendered)
 }
 
 async fn index_handler(
