@@ -184,6 +184,9 @@ async fn main() {
     handlebars
         .register_template_file("logged_in_content", "templates/pages/logged_in_content.hbs")
         .expect("Failed to register logged in content template");
+    handlebars
+        .register_template_file("book_page", "templates/book_page.hbs")
+        .expect("Failed to register book page template");
 
     let state = Arc::new(AppState {
         handlebars,
@@ -195,6 +198,7 @@ async fn main() {
         .route("/", get(index_handler))
         .route("/login", post(login_handler))
         .route("/logout", post(logout_handler))
+        .route("/book/:book_id", get(book_page_handler))
         .with_state(state);
 
     println!("Server starting on http://localhost:3000");
@@ -299,6 +303,33 @@ async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
         .unwrap()
 }
 
+
+#[debug_handler]
+async fn book_page_handler(
+    State(state): State<Arc<AppState>>,
+    axum::extract::Path(book_id): axum::extract::Path<u32>,
+) -> Html<String> {
+    let book = state.library.iter()
+        .find(|b| b.id == book_id)
+        .expect("Book not found");
+
+    let starting_page = book.pages.iter()
+        .find(|p| p.id == book.starting_page)
+        .expect("Starting page not found");
+
+    let data = json!({
+        "title": book.title,
+        "page": starting_page,
+        "book_id": book.id
+    });
+
+    let rendered = state
+        .handlebars
+        .render("book_page", &data)
+        .expect("Failed to render book page template");
+
+    Html(rendered)
+}
 
 async fn index_handler(
     State(state): State<Arc<AppState>>,

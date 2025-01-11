@@ -3,7 +3,7 @@
     <h2>Choose Your Adventure</h2>
     {{#each state.library}}
         <div class="book-card">
-            <h3>{{this.title}}</h3>
+            <h3><a href="/book/{{this.id}}">{{this.title}}</a></h3>
             <p>{{this.summary}}</p>
         </div>
     {{/each}}

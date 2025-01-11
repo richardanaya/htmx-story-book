@@ -1,0 +1,11 @@
+<section class="book-page">
+    <h2>{{title}}</h2>
+    <div class="page-content">
+        <p>{{page.content}}</p>
+        <div class="choices">
+            {{#each page.choices}}
+                <button>{{this.text}}</button>
+            {{/each}}
+        </div>
+    </div>
+</section>
