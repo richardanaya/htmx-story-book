@@ -332,6 +332,12 @@ async fn book_page_handler(
         }
     }
 
+    // Debug: Print all headers
+    log::debug!("Headers received:");
+    for (name, value) in headers.iter() {
+        log::debug!("{}: {:?}", name, value.to_str());
+    }
+
     if !authenticated {
         return Response::builder()
             .status(StatusCode::SEE_OTHER)
@@ -339,6 +345,9 @@ async fn book_page_handler(
             .body("Redirecting...".into())
             .unwrap();
     }
+
+    let is_htmx = headers.get("HX-Request").is_some();
+    log::debug!("Is HTMX request: {}", is_htmx);
     let book = state.library.iter()
         .find(|b| b.id == book_id)
         .expect("Book not found");
@@ -358,6 +367,7 @@ async fn book_page_handler(
         .render("book_page", &data)
         .expect("Failed to render book page template");
 
+    log::debug!("Returning HTMX response");
     Response::builder()
         .status(StatusCode::OK)
         .header(header::CONTENT_TYPE, "text/html")
