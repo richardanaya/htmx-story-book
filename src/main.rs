@@ -326,6 +326,9 @@ async fn index_handler(
         "title": "Storybuilder",
         "heading": "Storybuilder",
         "count": count,
+        "state": {
+            "library": &state.library
+        }
     });
 
     if let Some(cookie) = headers.get(COOKIE) {

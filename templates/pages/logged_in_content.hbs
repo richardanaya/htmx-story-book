@@ -2,6 +2,17 @@
     Count: <button variant="text" id="counter" hx-get="/counter" hx-trigger="click" hx-swap="innerHTML">{{count}}</button>
     <p><small>(Click the number to increment)</small></p>
 </div>
+
+<section class="library">
+    <h2>Choose Your Adventure</h2>
+    {{#each state.library}}
+        <div class="book-card">
+            <h3>{{this.title}}</h3>
+            <p>{{this.summary}}</p>
+        </div>
+    {{/each}}
+</section>
+
 <div>
     {{> signature}}
 </div>
