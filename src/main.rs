@@ -199,8 +199,8 @@ async fn main() {
         .route("/", get(index_handler))
         .route("/login", post(login_handler))
         .route("/logout", post(logout_handler))
-        .route("/book/{book_id}", get(book_page_handler))
-        .route("/book/{book_id}/page/{page_id}", get(book_page_handler))
+        .route("/book/:book_id", get(book_start_handler))
+        .route("/book/:book_id/page/:page_id", get(book_page_handler))
         .with_state(state);
 
     println!("Server starting on http://localhost:3000");
@@ -307,10 +307,10 @@ async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
 
 
 #[debug_handler]
-async fn book_page_handler(
+async fn book_start_handler(
     State(state): State<Arc<AppState>>,
     headers: axum::http::HeaderMap,
-    axum::extract::Path((book_id, page_id)): axum::extract::Path<(u32, Option<u32>)>,
+    axum::extract::Path(book_id): axum::extract::Path<u32>,
 ) -> Response {
     // Check for valid auth cookie
     let mut authenticated = false;
@@ -346,15 +346,9 @@ async fn book_page_handler(
         .find(|b| b.id == book_id)
         .expect("Book not found");
 
-    let current_page = if let Some(page_id) = page_id {
-        book.pages.iter()
-            .find(|p| p.id == page_id)
-            .expect("Page not found")
-    } else {
-        book.pages.iter()
-            .find(|p| p.id == book.starting_page)
-            .expect("Starting page not found")
-    };
+    let current_page = book.pages.iter()
+        .find(|p| p.id == book.starting_page)
+        .expect("Starting page not found");
 
     let data = json!({
         "title": book.title,
