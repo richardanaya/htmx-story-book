@@ -13,10 +13,7 @@ use tower_http::services::ServeDir;
 use handlebars::Handlebars;
 use serde::{Deserialize, Serialize}; 
 use serde_json::json;
-use std::sync::{
-    atomic::{AtomicU32, Ordering},
-    Arc,
-};
+use std::sync::Arc;
 
 use dotenvy::dotenv;
 use std::env;
@@ -35,7 +32,7 @@ struct Claims {
     iat: usize,   // issued at
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 struct Book {
     id: u32,
     title: String,
@@ -44,14 +41,14 @@ struct Book {
     starting_page: u32,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 struct Page {
     id: u32,
     content: String,
     choices: Vec<Choice>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 struct Choice {
     text: String,
     target_page_id: u32,
