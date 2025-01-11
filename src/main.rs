@@ -360,7 +360,6 @@ async fn book_page_handler(
         "title": book.title,
         "page": current_page,
         "book_id": book.id
-        "book_id": book.id
     });
 
     if is_htmx {
