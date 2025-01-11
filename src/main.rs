@@ -308,7 +308,7 @@ async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
 async fn book_page_handler(
     State(state): State<Arc<AppState>>,
     axum::extract::Path(book_id): axum::extract::Path<u32>,
-) -> Html<String> {
+) -> Response {
     let book = state.library.iter()
         .find(|b| b.id == book_id)
         .expect("Book not found");
@@ -328,7 +328,11 @@ async fn book_page_handler(
         .render("book_page", &data)
         .expect("Failed to render book page template");
 
-    Html(rendered)
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "text/html")
+        .body(rendered.into())
+        .unwrap()
 }
 
 async fn index_handler(
