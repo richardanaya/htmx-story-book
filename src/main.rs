@@ -166,6 +166,8 @@ fn generate_fake_library() -> Vec<Book> {
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+    log::info!("Starting server...");
     let mut handlebars = Handlebars::new();
 
     // Register templates
