@@ -58,7 +58,6 @@ struct Choice {
 }
 
 struct AppState {
-    counter: AtomicU32,
     handlebars: Handlebars<'static>,
     library: Vec<Book>,
 }
@@ -193,7 +192,6 @@ async fn main() {
         .expect("Failed to register logged in content template");
 
     let state = Arc::new(AppState {
-        counter: AtomicU32::new(0),
         handlebars,
         library: generate_fake_library(),
     });
@@ -201,7 +199,6 @@ async fn main() {
     let app = Router::new()
         .nest_service("/static", ServeDir::new("static"))
         .route("/", get(index_handler))
-        .route("/counter", get(counter_handler))
         .route("/login", post(login_handler))
         .route("/logout", post(logout_handler))
         .with_state(state);
@@ -212,11 +209,6 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-#[debug_handler]
-async fn counter_handler(State(state): State<Arc<AppState>>) -> String {
-    let new_count = state.counter.fetch_add(1, Ordering::Relaxed) + 1;
-    new_count.to_string()
-}
 
 #[derive(Deserialize)]
 struct LoginForm {
@@ -293,11 +285,9 @@ async fn login_handler(
 }
 
 async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
-    let count = state.counter.load(Ordering::Relaxed);
     let data = json!({
         "title": "Storybuilder",
         "heading": "Storybuilder",
-        "count": count,
     });
     let rendered = state
         .handlebars
@@ -320,12 +310,9 @@ async fn index_handler(
     State(state): State<Arc<AppState>>,
     headers: axum::http::HeaderMap,
 ) -> Html<String> {
-    let count = state.counter.load(Ordering::Relaxed);
-
     let mut data = json!({
         "title": "Storybuilder",
         "heading": "Storybuilder",
-        "count": count,
         "state": {
             "library": &state.library
         }
