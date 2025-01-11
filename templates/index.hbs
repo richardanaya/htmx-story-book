@@ -4,11 +4,12 @@
     <title>{{title}}</title>
     <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/static/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body>
     <header>
         <h1>{{heading}}</h1>
-        <div class="auth-section">
+        <div>
             {{#if username}}
                 {{> logged_in}}
             {{else}}
