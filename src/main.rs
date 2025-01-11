@@ -204,9 +204,6 @@ async fn main() {
         .route("/counter", get(counter_handler))
         .route("/login", post(login_handler))
         .route("/logout", post(logout_handler))
-        .route("/books", get(list_books_handler))
-        .route("/books/:id", get(view_book_handler))
-        .route("/books/:id/pages/:page_id", get(view_page_handler))
         .with_state(state);
 
     println!("Server starting on http://localhost:3000");
@@ -318,73 +315,6 @@ async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
         .unwrap()
 }
 
-// Add these new handlers after the existing ones
-
-#[debug_handler]
-async fn list_books_handler(
-    State(state): State<Arc<AppState>>,
-) -> Html<String> {
-    let data = json!({
-        "books": state.library,
-    });
-
-    let rendered = state
-        .handlebars
-        .render("books", &data)
-        .expect("Failed to render books template");
-
-    Html(rendered)
-}
-
-#[debug_handler]
-async fn view_book_handler(
-    State(state): State<Arc<AppState>>,
-    axum::extract::Path(book_id): axum::extract::Path<u32>,
-) -> Html<String> {
-    let book = state.library
-        .iter()
-        .find(|b| b.id == book_id)
-        .expect("Book not found");
-
-    let data = json!({
-        "book": book,
-    });
-
-    let rendered = state
-        .handlebars
-        .render("book", &data)
-        .expect("Failed to render book template");
-
-    Html(rendered)
-}
-
-#[debug_handler]
-async fn view_page_handler(
-    State(state): State<Arc<AppState>>,
-    axum::extract::Path((book_id, page_id)): axum::extract::Path<(u32, u32)>,
-) -> Html<String> {
-    let book = state.library
-        .iter()
-        .find(|b| b.id == book_id)
-        .expect("Book not found");
-
-    let page = book.pages
-        .iter()
-        .find(|p| p.id == page_id)
-        .expect("Page not found");
-
-    let data = json!({
-        "book": book,
-        "page": page,
-    });
-
-    let rendered = state
-        .handlebars
-        .render("page", &data)
-        .expect("Failed to render page template");
-
-    Html(rendered)
-}
 
 async fn index_handler(
     State(state): State<Arc<AppState>>,
