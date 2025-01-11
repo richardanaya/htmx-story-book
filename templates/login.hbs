@@ -5,11 +5,11 @@
     <form hx-post="/login" hx-swap="outerHTML" hx-target="#login-section">
         <fieldset>
             <label for="username">Username</label>
-            <input type="text" id="username" name="username" required>
+            <input type="text" id="username" name="username" autocomplete="username" required>
         </fieldset>
         <fieldset>
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
+            <input type="password" id="password" name="password" autocomplete="current-password" required>
         </fieldset>
         <button type="submit">Login</button>
     </form>
