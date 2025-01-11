@@ -4,7 +4,13 @@
         <p>{{page.content}}</p>
         <div class="choices">
             {{#each page.choices}}
-                <button>{{this.text}}</button>
+                <a href="/book/{{../book_id}}/page/{{this.target_page_id}}" 
+                   hx-get="/book/{{../book_id}}/page/{{this.target_page_id}}" 
+                   hx-target="#book-page" 
+                   hx-swap="innerHTML" 
+                   hx-push-url="true">
+                    {{this.text}}
+                </a>
             {{/each}}
         </div>
     </div>
