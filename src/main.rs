@@ -307,8 +307,36 @@ async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
 #[debug_handler]
 async fn book_page_handler(
     State(state): State<Arc<AppState>>,
+    headers: axum::http::HeaderMap,
     axum::extract::Path(book_id): axum::extract::Path<u32>,
 ) -> Response {
+    // Check for valid auth cookie
+    let mut authenticated = false;
+    if let Some(cookie) = headers.get(COOKIE) {
+        if let Some(cookie_str) = cookie.to_str().ok() {
+            if let Some(token) = cookie_str
+                .split(';')
+                .find(|s| s.trim().starts_with("auth="))
+                .and_then(|s| s.trim().strip_prefix("auth="))
+            {
+                if decode::<Claims>(
+                    token,
+                    &DecodingKey::from_secret(&get_jwt_secret()),
+                    &Validation::default()
+                ).is_ok() {
+                    authenticated = true;
+                }
+            }
+        }
+    }
+
+    if !authenticated {
+        return Response::builder()
+            .status(StatusCode::UNAUTHORIZED)
+            .header(header::CONTENT_TYPE, "text/html")
+            .body("Unauthorized".into())
+            .unwrap();
+    }
     let book = state.library.iter()
         .find(|b| b.id == book_id)
         .expect("Book not found");
