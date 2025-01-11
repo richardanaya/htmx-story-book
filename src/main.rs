@@ -173,9 +173,6 @@ async fn main() {
         .register_template_file("index", "templates/index.hbs")
         .expect("Failed to register index template");
     handlebars
-        .register_template_file("signature", "templates/signature.hbs")
-        .expect("Failed to register signature partial");
-    handlebars
         .register_template_file("login", "templates/login.hbs")
         .expect("Failed to register login partial");
     handlebars
