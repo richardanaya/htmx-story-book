@@ -198,7 +198,7 @@ async fn main() {
         .route("/", get(index_handler))
         .route("/login", post(login_handler))
         .route("/logout", post(logout_handler))
-        .route("/book/:book_id", get(book_page_handler))
+        .route("/book/{book_id}", get(book_page_handler))
         .with_state(state);
 
     println!("Server starting on http://localhost:3000");
