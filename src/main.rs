@@ -307,10 +307,10 @@ async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
 
 
 #[debug_handler]
-async fn book_start_handler(
+async fn book_page_handler(
     State(state): State<Arc<AppState>>,
     headers: axum::http::HeaderMap,
-    axum::extract::Path(book_id): axum::extract::Path<u32>,
+    axum::extract::Path((book_id, page_id)): axum::extract::Path<(u32, u32)>,
 ) -> Response {
     // Check for valid auth cookie
     let mut authenticated = false;
@@ -347,8 +347,8 @@ async fn book_start_handler(
         .expect("Book not found");
 
     let current_page = book.pages.iter()
-        .find(|p| p.id == book.starting_page)
-        .expect("Starting page not found");
+        .find(|p| p.id == page_id)
+        .expect("Page not found");
 
     let data = json!({
         "title": book.title,
