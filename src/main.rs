@@ -332,9 +332,9 @@ async fn book_page_handler(
 
     if !authenticated {
         return Response::builder()
-            .status(StatusCode::UNAUTHORIZED)
-            .header(header::CONTENT_TYPE, "text/html")
-            .body("Unauthorized".into())
+            .status(StatusCode::SEE_OTHER)
+            .header(header::LOCATION, "/")
+            .body("Redirecting...".into())
             .unwrap();
     }
     let book = state.library.iter()
