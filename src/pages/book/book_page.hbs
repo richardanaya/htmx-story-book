@@ -2,17 +2,21 @@
     <h2>{{title}}</h2>
     <div class="page-content">
         <p>{{page.content}}</p>
-        <div class="choices">
-            {{#each page.choices}}
-                <button variant="full-width"
-                        onclick="window.location.href='/pages/book/{{../book_id}}/page/{{this.target_page_id}}'"
-                        hx-get="/pages/book/{{../book_id}}/page/{{this.target_page_id}}"
-                        hx-target="#book-page" 
-                        hx-swap="innerHTML" 
-                        hx-push-url="true">
-                    {{this.text}}
-                </button>
-            {{/each}}
-        </div>
+        <nav role="navigation" aria-label="Story choices">
+            <ul>
+                {{#each page.choices}}
+                    <li>
+                        <button variant="full-width"
+                                onclick="window.location.href='/pages/book/{{../book_id}}/page/{{this.target_page_id}}'"
+                                hx-get="/pages/book/{{../book_id}}/page/{{this.target_page_id}}"
+                                hx-target="#book-page" 
+                                hx-swap="innerHTML" 
+                                hx-push-url="true">
+                            {{this.text}}
+                        </button>
+                    </li>
+                {{/each}}
+            </ul>
+        </nav>
     </div>
 </section>

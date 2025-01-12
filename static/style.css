@@ -38,11 +38,17 @@ main {
   padding: 1rem;
 }
 
-.choices {
+nav[role="navigation"] ul {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   margin-top: 1rem;
+  list-style: none;
+  padding: 0;
+}
+
+nav[role="navigation"] li {
+  margin: 0;
 }
 
 button[variant="full-width"] {
