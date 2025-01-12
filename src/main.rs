@@ -69,10 +69,10 @@ async fn main() {
         .route("/", get(handlers::index_handler))
         .route("/login", post(handlers::login_handler))
         .route("/logout", post(handlers::logout_handler))
-        .route("/book/{book_id}", get(handlers::book_start_handler))
+        .route("/book/{book_id}", get(handlers::book_handlers::book_start_handler))
         .route(
             "/book/{book_id}/page/{page_id}",
-            get(handlers::book_page_handler),
+            get(handlers::book_handlers::book_page_handler),
         )
         .with_state(state);
 
