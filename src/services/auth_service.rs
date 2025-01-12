@@ -1,6 +1,6 @@
-use jsonwebtoken::{encode, decode, Header, EncodingKey, DecodingKey, Validation};
-use std::time::{SystemTime, UNIX_EPOCH};
 use crate::models::user::{Claims, UserCredentials};
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct AuthService {
     secret: Vec<u8>,
@@ -20,7 +20,7 @@ impl AuthService {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_secs() as usize;
-            
+
         let claims = Claims {
             sub: username.to_string(),
             exp: now + 3600,
@@ -30,15 +30,18 @@ impl AuthService {
         encode(
             &Header::default(),
             &claims,
-            &EncodingKey::from_secret(&self.secret)
-        ).unwrap()
+            &EncodingKey::from_secret(&self.secret),
+        )
+        .unwrap()
     }
 
     pub fn validate_jwt(&self, token: &str) -> Option<Claims> {
         decode::<Claims>(
             token,
             &DecodingKey::from_secret(&self.secret),
-            &Validation::default()
-        ).map(|data| data.claims).ok()
+            &Validation::default(),
+        )
+        .map(|data| data.claims)
+        .ok()
     }
 }

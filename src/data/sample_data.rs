@@ -1,4 +1,4 @@
-use crate::models::book::{Book, Page, Choice};
+use crate::models::book::{Book, Choice, Page};
 
 pub fn generate_fake_library() -> Vec<Book> {
     vec![
@@ -24,7 +24,8 @@ pub fn generate_fake_library() -> Vec<Book> {
                 },
                 Page {
                     id: 102,
-                    content: "The front door creaks open. Inside is a dark hallway. Do you:".to_string(),
+                    content: "The front door creaks open. Inside is a dark hallway. Do you:"
+                        .to_string(),
                     choices: vec![
                         Choice {
                             text: "Light a match and explore".to_string(),
@@ -74,7 +75,8 @@ pub fn generate_fake_library() -> Vec<Book> {
                 },
                 Page {
                     id: 202,
-                    content: "You reach the control room. The main console is sparking! Do you:".to_string(),
+                    content: "You reach the control room. The main console is sparking! Do you:"
+                        .to_string(),
                     choices: vec![
                         Choice {
                             text: "Attempt to repair it".to_string(),

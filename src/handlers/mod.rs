@@ -1,18 +1,18 @@
 use axum::{
     debug_handler,
     extract::{Form, State},
-    http::{header, StatusCode, header::COOKIE},
+    http::{header, header::COOKIE, StatusCode},
     response::{Html, Response},
 };
+use jsonwebtoken::{decode, DecodingKey, Validation};
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use jsonwebtoken::{decode, DecodingKey, Validation};
 
 use crate::{
-    AppState,
-    models::user::{Claims, UserCredentials},
     get_jwt_secret,
+    models::user::{Claims, UserCredentials},
+    AppState,
 };
 
 #[derive(Deserialize)]
@@ -38,7 +38,7 @@ pub async fn login_handler(
             "username": form.username,
             "error": null
         });
-        
+
         let rendered = state
             .handlebars
             .render("logged_in", &data)
@@ -85,10 +85,7 @@ pub async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
 
     Response::builder()
         .status(StatusCode::OK)
-        .header(
-            header::SET_COOKIE,
-            "auth=; Path=/; HttpOnly; Max-Age=0"
-        )
+        .header(header::SET_COOKIE, "auth=; Path=/; HttpOnly; Max-Age=0")
         .header(header::CONTENT_TYPE, "text/html")
         .body(rendered.into())
         .unwrap()
@@ -125,10 +122,14 @@ pub async fn book_start_handler(
     }
 
     let is_htmx = headers.get("HX-Request").is_some();
-    let book = state.book_service.get_book(&state.library, book_id)
+    let book = state
+        .book_service
+        .get_book(&state.library, book_id)
         .expect("Book not found");
-        
-    let current_page = state.book_service.get_starting_page(book)
+
+    let current_page = state
+        .book_service
+        .get_starting_page(book)
         .expect("Starting page not found");
 
     let data = json!({
@@ -170,7 +171,7 @@ pub async fn book_start_handler(
                     if let Ok(token_data) = decode::<Claims>(
                         token,
                         &DecodingKey::from_secret(&get_jwt_secret()),
-                        &Validation::default()
+                        &Validation::default(),
                     ) {
                         full_data["username"] = json!(token_data.claims.sub);
                     }
@@ -215,8 +216,10 @@ pub async fn book_page_handler(
                 if decode::<Claims>(
                     token,
                     &DecodingKey::from_secret(&get_jwt_secret()),
-                    &Validation::default()
-                ).is_ok() {
+                    &Validation::default(),
+                )
+                .is_ok()
+                {
                     authenticated = true;
                 }
             }
@@ -232,10 +235,14 @@ pub async fn book_page_handler(
     }
 
     let is_htmx = headers.get("HX-Request").is_some();
-    let book = state.book_service.get_book(&state.library, book_id)
+    let book = state
+        .book_service
+        .get_book(&state.library, book_id)
         .expect("Book not found");
-        
-    let current_page = state.book_service.get_page(book, page_id)
+
+    let current_page = state
+        .book_service
+        .get_page(book, page_id)
         .expect("Page not found");
 
     let data = json!({
@@ -277,7 +284,7 @@ pub async fn book_page_handler(
                     if let Ok(token_data) = decode::<Claims>(
                         token,
                         &DecodingKey::from_secret(&get_jwt_secret()),
-                        &Validation::default()
+                        &Validation::default(),
                     ) {
                         full_data["username"] = json!(token_data.claims.sub);
                     }
@@ -327,7 +334,7 @@ pub async fn index_handler(
                 if let Ok(token_data) = decode::<Claims>(
                     token,
                     &DecodingKey::from_secret(&get_jwt_secret()),
-                    &Validation::default()
+                    &Validation::default(),
                 ) {
                     data["username"] = json!(token_data.claims.sub);
                 }

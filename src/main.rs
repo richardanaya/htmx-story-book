@@ -2,17 +2,16 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use tower_http::services::ServeDir;
-use handlebars::Handlebars;
-use std::sync::Arc;
 use dotenvy::dotenv;
+use handlebars::Handlebars;
 use std::env;
+use std::sync::Arc;
+use tower_http::services::ServeDir;
 
+mod data;
+mod handlers;
 mod models;
 mod services;
-mod handlers;
-mod data;
-
 
 pub fn get_jwt_secret() -> Vec<u8> {
     dotenv().ok();
@@ -30,7 +29,6 @@ pub struct AppState {
     book_service: Arc<services::book_service::BookService>,
 }
 
-
 #[tokio::main]
 async fn main() {
     env_logger::init();
@@ -47,7 +45,10 @@ async fn main() {
         .register_template_file("logged_in", "templates/logged_in.hbs")
         .expect("Failed to register logged in template");
     handlebars
-        .register_template_file("non_logged_in_content", "templates/pages/non_logged_in_content.hbs")
+        .register_template_file(
+            "non_logged_in_content",
+            "templates/pages/non_logged_in_content.hbs",
+        )
         .expect("Failed to register non logged in content template");
     handlebars
         .register_template_file("logged_in_content", "templates/pages/logged_in_content.hbs")
@@ -69,7 +70,10 @@ async fn main() {
         .route("/login", post(handlers::login_handler))
         .route("/logout", post(handlers::logout_handler))
         .route("/book/{book_id}", get(handlers::book_start_handler))
-        .route("/book/{book_id}/page/{page_id}", get(handlers::book_page_handler))
+        .route(
+            "/book/{book_id}/page/{page_id}",
+            get(handlers::book_page_handler),
+        )
         .with_state(state);
 
     println!("Server starting on http://localhost:3000");
@@ -77,4 +81,3 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
-
