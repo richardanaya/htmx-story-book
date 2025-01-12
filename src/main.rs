@@ -40,27 +40,7 @@ struct Claims {
     iat: usize,   // issued at
 }
 
-#[derive(Debug, Clone, Serialize)]
-struct Book {
-    id: u32,
-    title: String,
-    summary: String,
-    pages: Vec<Page>,
-    starting_page: u32,
-}
-
-#[derive(Debug, Clone, Serialize)]
-struct Page {
-    id: u32,
-    content: String,
-    choices: Vec<Choice>,
-}
-
-#[derive(Debug, Clone, Serialize)]
-struct Choice {
-    text: String,
-    target_page_id: u32,
-}
+use crate::models::book::{Book, Page, Choice};
 
 struct AppState {
     handlebars: Handlebars<'static>,
