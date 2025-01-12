@@ -53,7 +53,7 @@ pub async fn index_handler(
 
     let rendered = state
         .handlebars
-        .render("index", &data)
+        .render("layout", &data)
         .expect("Failed to render template");
 
     Html(rendered)

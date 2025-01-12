@@ -20,7 +20,10 @@ pub fn register_templates(handlebars: &mut handlebars::Handlebars) {
 pub fn create_routes() -> Router<Arc<AppState>> {
     Router::new()
         .route("/pages/book/{book_id}", get(book_start_handler))
-        .route("/pages/book/{book_id}/page/{page_id}", get(book_page_handler))
+        .route(
+            "/pages/book/{book_id}/page/{page_id}",
+            get(book_page_handler),
+        )
 }
 
 #[debug_handler]
@@ -120,7 +123,7 @@ pub async fn book_start_handler(
 
         let rendered = state
             .handlebars
-            .render("index", &full_data)
+            .render("layout", &full_data)
             .expect("Failed to render template");
 
         Response::builder()
@@ -233,7 +236,7 @@ pub async fn book_page_handler(
 
         let rendered = state
             .handlebars
-            .render("index", &full_data)
+            .render("layout", &full_data)
             .expect("Failed to render template");
 
         Response::builder()
