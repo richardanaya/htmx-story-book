@@ -10,11 +10,8 @@ use jsonwebtoken::{decode, DecodingKey, Validation};
 use serde_json::json;
 use std::sync::Arc;
 
-pub fn book_routes<S>() -> Router<S>
-where
-    S: Clone + Send + Sync + 'static,
-{
-    Router::<S>::new()
+pub fn book_routes() -> Router<Arc<AppState>> {
+    Router::new()
         .route("/book/{book_id}", get(book_start_handler))
         .route("/book/{book_id}/page/{page_id}", get(book_page_handler))
 }
