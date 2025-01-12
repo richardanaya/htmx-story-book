@@ -1,91 +1,30 @@
 use axum::{
-    routing::{get, post},
-    Router,
+    debug_handler,
+    extract::{Form, State},
+    http::{header, StatusCode},
+    http::header::COOKIE,
+    response::{Html, Response},
 };
-use tower_http::services::ServeDir;
 use handlebars::Handlebars;
+use serde::Deserialize;
+use serde_json::json;
 use std::sync::Arc;
-use dotenvy::dotenv;
-use std::env;
+use jsonwebtoken::{decode, DecodingKey, Validation};
 
-mod models;
-mod services;
-mod handlers;
-mod data;
-
-pub fn get_jwt_secret() -> Vec<u8> {
-    dotenv().ok();
-    env::var("JWT_SECRET")
-        .expect("JWT_SECRET must be set in .env file")
-        .into_bytes()
-}
-
-use crate::models::book::Book;
-
-pub struct AppState {
-    handlebars: Handlebars<'static>,
-    library: Vec<Book>,
-    auth_service: Arc<services::auth_service::AuthService>,
-    book_service: Arc<services::book_service::BookService>,
-}
-
-
-#[tokio::main]
-async fn main() {
-    env_logger::init();
-    let mut handlebars = Handlebars::new();
-
-    // Register templates
-    handlebars
-        .register_template_file("index", "templates/index.hbs")
-        .expect("Failed to register index template");
-    handlebars
-        .register_template_file("login", "templates/login.hbs")
-        .expect("Failed to register login partial");
-    handlebars
-        .register_template_file("logged_in", "templates/logged_in.hbs")
-        .expect("Failed to register logged in template");
-    handlebars
-        .register_template_file("non_logged_in_content", "templates/pages/non_logged_in_content.hbs")
-        .expect("Failed to register non logged in content template");
-    handlebars
-        .register_template_file("logged_in_content", "templates/pages/logged_in_content.hbs")
-        .expect("Failed to register logged in content template");
-    handlebars
-        .register_template_file("book_page", "templates/book_page.hbs")
-        .expect("Failed to register book page template");
-
-    let state = Arc::new(AppState {
-        handlebars,
-        library: data::sample_data::generate_fake_library(),
-        auth_service: Arc::new(services::auth_service::AuthService::new(get_jwt_secret())),
-        book_service: Arc::new(services::book_service::BookService {}),
-    });
-
-    let app = Router::new()
-        .nest_service("/static", ServeDir::new("static"))
-        .route("/", get(handlers::index_handler))
-        .route("/login", post(handlers::login_handler))
-        .route("/logout", post(handlers::logout_handler))
-        .route("/book/{book_id}", get(handlers::book_start_handler))
-        .route("/book/{book_id}/page/{page_id}", get(handlers::book_page_handler))
-        .with_state(state);
-
-    println!("Server starting on http://localhost:3000");
-
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
-}
-
+use crate::{
+    AppState,
+    models::user::{Claims, UserCredentials},
+    get_jwt_secret,
+};
 
 #[derive(Deserialize)]
-struct LoginForm {
-    username: String,
-    password: String,
+pub struct LoginForm {
+    pub username: String,
+    pub password: String,
 }
 
 #[debug_handler]
-async fn login_handler(
+pub async fn login_handler(
     State(state): State<Arc<AppState>>,
     Form(form): Form<LoginForm>,
 ) -> Response {
@@ -115,7 +54,7 @@ async fn login_handler(
             )
             .header(header::CONTENT_TYPE, "text/html")
             .header("HX-Trigger", "login-success")
-            .header("HX-Refresh", "true")  // Add this header for full page refresh
+            .header("HX-Refresh", "true")
             .body(rendered.into())
             .unwrap()
     } else {
@@ -136,7 +75,7 @@ async fn login_handler(
     }
 }
 
-async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
+pub async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
     let data = json!({
         "title": "Storybuilder",
         "heading": "Storybuilder",
@@ -157,9 +96,8 @@ async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
         .unwrap()
 }
 
-
 #[debug_handler]
-async fn book_start_handler(
+pub async fn book_start_handler(
     State(state): State<Arc<AppState>>,
     headers: axum::http::HeaderMap,
     axum::extract::Path(book_id): axum::extract::Path<u32>,
@@ -217,7 +155,7 @@ async fn book_start_handler(
         let mut full_data = json!({
             "title": book.title,
             "heading": book.title,
-            "username": null, // We'll add this below
+            "username": null,
             "state": {
                 "library": &state.library
             }
@@ -262,7 +200,7 @@ async fn book_start_handler(
     }
 }
 
-async fn book_page_handler(
+pub async fn book_page_handler(
     State(state): State<Arc<AppState>>,
     headers: axum::http::HeaderMap,
     axum::extract::Path((book_id, page_id)): axum::extract::Path<(u32, u32)>,
@@ -286,7 +224,6 @@ async fn book_page_handler(
             }
         }
     }
-
 
     if !authenticated {
         return Response::builder()
@@ -325,7 +262,7 @@ async fn book_page_handler(
         let mut full_data = json!({
             "title": book.title,
             "heading": book.title,
-            "username": null, // We'll add this below
+            "username": null,
             "state": {
                 "library": &state.library
             }
@@ -370,7 +307,7 @@ async fn book_page_handler(
     }
 }
 
-async fn index_handler(
+pub async fn index_handler(
     State(state): State<Arc<AppState>>,
     headers: axum::http::HeaderMap,
 ) -> Html<String> {
