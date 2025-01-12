@@ -5,7 +5,6 @@ use std::env;
 use std::sync::Arc;
 use tower_http::services::ServeDir;
 
-mod data;
 mod models;
 mod pages;
 mod services;
