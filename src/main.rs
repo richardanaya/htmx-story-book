@@ -33,11 +33,12 @@ async fn main() {
     pages::register_index_templates(&mut handlebars);
     pages::book::register_templates(&mut handlebars);
 
+    let book_service = Arc::new(services::book_service::BookService::new());
     let state = Arc::new(AppState {
         handlebars,
-        library: data::sample_data::generate_fake_library(),
+        library: book_service.get_library().clone(),
         auth_service: Arc::new(services::auth_service::AuthService::new(get_jwt_secret())),
-        book_service: Arc::new(services::book_service::BookService {}),
+        book_service,
     });
 
     let app = Router::new()

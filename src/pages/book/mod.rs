@@ -56,12 +56,12 @@ pub async fn book_start_handler(
     let is_htmx = headers.get("HX-Request").is_some();
     let book = state
         .book_service
-        .get_book(&state.library, book_id)
+        .get_book(book_id)
         .expect("Book not found");
 
     let current_page = state
         .book_service
-        .get_starting_page(book)
+        .get_starting_page(book_id)
         .expect("Starting page not found");
 
     let data = json!({
@@ -169,12 +169,12 @@ pub async fn book_page_handler(
     let is_htmx = headers.get("HX-Request").is_some();
     let book = state
         .book_service
-        .get_book(&state.library, book_id)
+        .get_book(book_id)
         .expect("Book not found");
 
     let current_page = state
         .book_service
-        .get_page(book, page_id)
+        .get_page(book_id, page_id)
         .expect("Page not found");
 
     let data = json!({
