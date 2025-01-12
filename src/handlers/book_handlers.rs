@@ -9,8 +9,8 @@ use jsonwebtoken::{decode, DecodingKey, Validation};
 use serde_json::json;
 use std::sync::Arc;
 
-pub fn merge_book_routes(router: Router) -> Router {
-    router
+pub fn book_routes() -> Router {
+    Router::new()
         .route("/book/{book_id}", get(book_start_handler))
         .route("/book/{book_id}/page/{page_id}", get(book_page_handler))
 }

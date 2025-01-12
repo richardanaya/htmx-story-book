@@ -69,7 +69,7 @@ async fn main() {
         .route("/", get(handlers::index_handler))
         .route("/login", post(handlers::login_handler))
         .route("/logout", post(handlers::logout_handler))
-        .merge(handlers::book_handlers::merge_book_routes(Router::new()))
+        .merge(handlers::book_handlers::book_routes())
         .with_state(state);
 
     println!("Server starting on http://localhost:3000");
