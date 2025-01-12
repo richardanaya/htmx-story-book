@@ -9,7 +9,8 @@ use axum::{
 };
 use tower_http::services::ServeDir;
 use handlebars::Handlebars;
-use serde::{Deserialize, Serialize}; 
+use serde::Deserialize;
+use crate::models::user::Claims;
 use serde_json::json;
 use std::sync::Arc;
 
