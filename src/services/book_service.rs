@@ -81,6 +81,76 @@ impl BookService {
                             },
                         ],
                     },
+                    Page {
+                        id: 104,
+                        content: "The match flickers, revealing a grand staircase. Do you:".to_string(),
+                        choices: vec![
+                            Choice {
+                                text: "Go upstairs".to_string(),
+                                target_page_id: 107,
+                            },
+                            Choice {
+                                text: "Check the parlor".to_string(),
+                                target_page_id: 108,
+                            },
+                        ],
+                    },
+                    Page {
+                        id: 105,
+                        content: "You stumble in the dark and hear a creak behind you. Do you:".to_string(),
+                        choices: vec![
+                            Choice {
+                                text: "Turn around slowly".to_string(),
+                                target_page_id: 109,
+                            },
+                            Choice {
+                                text: "Run forward blindly".to_string(),
+                                target_page_id: 110,
+                            },
+                        ],
+                    },
+                    Page {
+                        id: 106,
+                        content: "You're in a dusty kitchen. A rat scurries by. Do you:".to_string(),
+                        choices: vec![
+                            Choice {
+                                text: "Search the cabinets".to_string(),
+                                target_page_id: 111,
+                            },
+                            Choice {
+                                text: "Exit through the pantry".to_string(),
+                                target_page_id: 112,
+                            },
+                        ],
+                    },
+                    Page {
+                        id: 107,
+                        content: "At the top of the stairs, you see two doors. Do you:".to_string(),
+                        choices: vec![
+                            Choice {
+                                text: "Enter the left door".to_string(),
+                                target_page_id: 113,
+                            },
+                            Choice {
+                                text: "Enter the right door".to_string(),
+                                target_page_id: 114,
+                            },
+                        ],
+                    },
+                    Page {
+                        id: 108,
+                        content: "The parlor has a strange painting. It seems to be watching you. Do you:".to_string(),
+                        choices: vec![
+                            Choice {
+                                text: "Examine the painting".to_string(),
+                                target_page_id: 115,
+                            },
+                            Choice {
+                                text: "Ignore it and look around".to_string(),
+                                target_page_id: 116,
+                            },
+                        ],
+                    },
                 ],
             },
             Book {
