@@ -7,8 +7,6 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use jsonwebtoken::{encode, decode, Header, EncodingKey, DecodingKey, Validation};
-use std::time::{SystemTime, UNIX_EPOCH};
 use tower_http::services::ServeDir;
 use handlebars::Handlebars;
 use serde::{Deserialize, Serialize}; 
@@ -18,11 +16,21 @@ use std::sync::Arc;
 use dotenvy::dotenv;
 use std::env;
 
+mod models;
+mod services;
+
 fn get_jwt_secret() -> Vec<u8> {
     dotenv().ok();
     env::var("JWT_SECRET")
         .expect("JWT_SECRET must be set in .env file")
         .into_bytes()
+}
+
+#[derive(Debug, Serialize, Deserialize)] 
+struct Claims {
+    sub: String,  // username
+    exp: usize,   // expiration time
+    iat: usize,   // issued at
 }
 
 #[derive(Debug, Serialize, Deserialize)] 
@@ -193,6 +201,9 @@ async fn main() {
         handlebars,
         library: generate_fake_library(),
     });
+
+    let auth_service = Arc::new(services::auth_service::AuthService::new(get_jwt_secret()));
+    let book_service = Arc::new(services::book_service::BookService);
 
     let app = Router::new()
         .nest_service("/static", ServeDir::new("static"))
