@@ -4,7 +4,6 @@ use axum::{
     http::{header, StatusCode, header::COOKIE},
     response::{Html, Response},
 };
-use handlebars::Handlebars;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
