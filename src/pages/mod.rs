@@ -3,6 +3,8 @@ use axum::{
     extract::{Form, State},
     http::{header, StatusCode},
     response::{Html, Response},
+    routing::{get, post},
+    Router,
 };
 use jsonwebtoken::{decode, DecodingKey, Validation};
 use serde::Deserialize;
@@ -15,12 +17,40 @@ use crate::{
     AppState,
 };
 
-pub mod book_handlers;
+pub mod book;
 
 #[derive(Deserialize)]
 pub struct LoginForm {
     pub username: String,
     pub password: String,
+}
+
+pub fn register_index_templates(handlebars: &mut handlebars::Handlebars) {
+    handlebars
+        .register_template_string("index", include_str!("./index.hbs"))
+        .expect("Failed to register index template");
+    handlebars
+        .register_template_string("login", include_str!("./login.hbs"))
+        .expect("Failed to register login partial");
+    handlebars
+        .register_template_string("logged_in", include_str!("./logged_in.hbs"))
+        .expect("Failed to register logged in template");
+    handlebars
+        .register_template_string(
+            "non_logged_in_content",
+            include_str!("./non_logged_in_content.hbs"),
+        )
+        .expect("Failed to register non logged in content template");
+    handlebars
+        .register_template_string("logged_in_content", include_str!("./logged_in_content.hbs"))
+        .expect("Failed to register logged in content template");
+}
+
+pub fn create_routes() -> Router<Arc<AppState>> {
+    Router::new()
+        .route("/", get(index_handler))
+        .route("/login", post(login_handler))
+        .route("/logout", post(logout_handler))
 }
 
 #[debug_handler]

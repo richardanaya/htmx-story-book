@@ -9,8 +9,8 @@ use std::sync::Arc;
 use tower_http::services::ServeDir;
 
 mod data;
-mod handlers;
 mod models;
+mod pages;
 mod services;
 
 pub fn get_jwt_secret() -> Vec<u8> {
@@ -33,29 +33,8 @@ pub struct AppState {
 async fn main() {
     env_logger::init();
     let mut handlebars = Handlebars::new();
-
-    // Register templates
-    handlebars
-        .register_template_file("index", "templates/index.hbs")
-        .expect("Failed to register index template");
-    handlebars
-        .register_template_file("login", "templates/login.hbs")
-        .expect("Failed to register login partial");
-    handlebars
-        .register_template_file("logged_in", "templates/logged_in.hbs")
-        .expect("Failed to register logged in template");
-    handlebars
-        .register_template_file(
-            "non_logged_in_content",
-            "templates/pages/non_logged_in_content.hbs",
-        )
-        .expect("Failed to register non logged in content template");
-    handlebars
-        .register_template_file("logged_in_content", "templates/pages/logged_in_content.hbs")
-        .expect("Failed to register logged in content template");
-    handlebars
-        .register_template_file("book_page", "templates/book_page.hbs")
-        .expect("Failed to register book page template");
+    pages::register_index_templates(&mut handlebars);
+    pages::book::register_templates(&mut handlebars);
 
     let state = Arc::new(AppState {
         handlebars,
@@ -66,10 +45,8 @@ async fn main() {
 
     let app = Router::new()
         .nest_service("/static", ServeDir::new("static"))
-        .route("/", get(handlers::index_handler))
-        .route("/login", post(handlers::login_handler))
-        .route("/logout", post(handlers::logout_handler))
-        .merge(handlers::book_handlers::book_routes())
+        .merge(pages::create_routes())
+        .merge(pages::book::create_routes())
         .with_state(state);
 
     println!("Server starting on http://localhost:3000");

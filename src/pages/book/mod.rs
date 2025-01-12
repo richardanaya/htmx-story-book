@@ -1,3 +1,4 @@
+use crate::{get_jwt_secret, models::user::Claims, AppState};
 use axum::{
     debug_handler,
     extract::State,
@@ -10,13 +11,17 @@ use jsonwebtoken::{decode, DecodingKey, Validation};
 use serde_json::json;
 use std::sync::Arc;
 
-pub fn book_routes() -> Router<Arc<AppState>> {
+pub fn register_templates(handlebars: &mut handlebars::Handlebars) {
+    handlebars
+        .register_template_string("book_page", include_str!("./book_page.hbs"))
+        .expect("Failed to register book page template");
+}
+
+pub fn create_routes() -> Router<Arc<AppState>> {
     Router::new()
         .route("/book/{book_id}", get(book_start_handler))
         .route("/book/{book_id}/page/{page_id}", get(book_page_handler))
 }
-
-use crate::{get_jwt_secret, models::user::Claims, AppState};
 
 #[debug_handler]
 pub async fn book_start_handler(
