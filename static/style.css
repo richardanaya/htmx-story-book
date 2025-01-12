@@ -45,10 +45,13 @@ nav[role="navigation"] ul {
   margin-top: 1rem;
   list-style: none;
   padding: 0;
+  width: 100%;
 }
 
 nav[role="navigation"] li {
   margin: 0;
+  width: 100%;
+  display: block;
 }
 
 button[variant="full-width"] {
