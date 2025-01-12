@@ -31,7 +31,8 @@ async fn main() {
     env_logger::init();
     let mut handlebars = Handlebars::new();
     components::register_templates(&mut handlebars);
-    pages::register_index_templates(&mut handlebars);
+    pages::register_templates(&mut handlebars);
+    pages::index::register_templates(&mut handlebars);
     pages::book::register_templates(&mut handlebars);
 
     let book_service = Arc::new(services::book_service::BookService::new());
@@ -45,7 +46,7 @@ async fn main() {
     let app = Router::new()
         .nest_service("/static", ServeDir::new("static"))
         .merge(components::create_routes())
-        .merge(pages::create_routes())
+        .merge(pages::index::create_routes())
         .merge(pages::book::create_routes())
         .with_state(state);
 

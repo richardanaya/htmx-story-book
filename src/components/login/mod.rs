@@ -10,10 +10,7 @@ use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
 
-use crate::{
-    models::user::UserCredentials,
-    AppState,
-};
+use crate::{models::user::UserCredentials, AppState};
 
 #[derive(Deserialize)]
 pub struct LoginForm {
