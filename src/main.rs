@@ -1,17 +1,25 @@
 use axum::{
     routing::{get, post},
     Router,
+    extract::{Form, State},
+    http::{header, StatusCode},
+    response::{Html, Response},
 };
 use tower_http::services::ServeDir;
 use handlebars::Handlebars;
 use std::sync::Arc;
 use dotenvy::dotenv;
 use std::env;
+use serde::Deserialize;
+use serde_json::json;
+use jsonwebtoken::{decode, DecodingKey, Validation};
 
 mod models;
 mod services;
 mod handlers;
 mod data;
+
+use crate::models::user::{Claims, UserCredentials};
 
 pub fn get_jwt_secret() -> Vec<u8> {
     dotenv().ok();

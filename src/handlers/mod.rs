@@ -10,6 +10,11 @@ use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
 use jsonwebtoken::{decode, DecodingKey, Validation};
+use handlebars::Handlebars;
+use serde::Deserialize;
+use serde_json::json;
+use std::sync::Arc;
+use jsonwebtoken::{decode, DecodingKey, Validation};
 
 use crate::{
     AppState,
