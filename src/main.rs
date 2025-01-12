@@ -5,6 +5,7 @@ use std::env;
 use std::sync::Arc;
 use tower_http::services::ServeDir;
 
+mod components;
 mod models;
 mod pages;
 mod services;
@@ -29,6 +30,7 @@ pub struct AppState {
 async fn main() {
     env_logger::init();
     let mut handlebars = Handlebars::new();
+    components::register_templates(&mut handlebars);
     pages::register_index_templates(&mut handlebars);
     pages::book::register_templates(&mut handlebars);
 
@@ -42,6 +44,7 @@ async fn main() {
 
     let app = Router::new()
         .nest_service("/static", ServeDir::new("static"))
+        .merge(components::create_routes())
         .merge(pages::create_routes())
         .merge(pages::book::create_routes())
         .with_state(state);
