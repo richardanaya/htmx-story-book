@@ -99,6 +99,6 @@ pub async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
 
 pub fn create_routes() -> Router<Arc<AppState>> {
     Router::new()
-        .route("/login", post(login_handler))
-        .route("/logout", post(logout_handler))
+        .route("/components/login", post(login_handler))
+        .route("/components/logout", post(logout_handler))
 }

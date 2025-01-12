@@ -2,7 +2,7 @@
     {{#if error}}
     <p role="alert">{{error}}</p>
     {{/if}}
-    <form hx-post="/login" hx-swap="outerHTML" hx-target="#login-section">
+    <form hx-post="/components/login" hx-swap="outerHTML" hx-target="#login-section">
         <fieldset>
             <label for="username">Username</label>
             <input type="text" id="username" name="username" autocomplete="username" required>
