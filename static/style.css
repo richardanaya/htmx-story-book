@@ -45,22 +45,18 @@ main {
   margin-top: 1rem;
 }
 
-.choice {
+button[variant="full-width"] {
+  width: 100%;
+  text-align: left;
   padding: 0.5rem;
   border: 1px solid var(--gray-3);
   border-radius: var(--radius-2);
   cursor: pointer;
-}
-
-.choice a {
-  text-decoration: none;
+  background-color: var(--surface-1);
   color: var(--text-1);
-  display: block;
-  height: 100%;
-  width: 100%;
 }
 
-.choice:hover {
+button[variant="full-width"]:hover {
   background-color: var(--gray-1);
 }
 
