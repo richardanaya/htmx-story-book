@@ -1,4 +1,4 @@
-Minimal HTMX Example
+# Minimal HTMX Example
 
 This is a simple website meant to demonstate how I write HTMX and Rust. It has a simple set of features:
 
