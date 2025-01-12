@@ -183,7 +183,7 @@ async fn main() {
     });
 
     let auth_service = Arc::new(services::auth_service::AuthService::new(get_jwt_secret()));
-    let book_service = Arc::new(services::book_service::BookService);
+    let book_service = Arc::new(services::book_service::BookService {});
 
     let app = Router::new()
         .nest_service("/static", ServeDir::new("static"))
