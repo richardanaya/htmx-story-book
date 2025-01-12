@@ -1,5 +1,4 @@
 use crate::models::book::{Book, Page};
-use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct BookService;

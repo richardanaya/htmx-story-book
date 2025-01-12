@@ -26,19 +26,8 @@ fn get_jwt_secret() -> Vec<u8> {
         .into_bytes()
 }
 
-#[derive(Debug, Serialize, Deserialize)] 
-struct Claims {
-    sub: String,  // username
-    exp: usize,   // expiration time
-    iat: usize,   // issued at
-}
-
-#[derive(Debug, Serialize, Deserialize)] 
-struct Claims {
-    sub: String,  // username
-    exp: usize,   // expiration time
-    iat: usize,   // issued at
-}
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::models::book::{Book, Page, Choice};
 
