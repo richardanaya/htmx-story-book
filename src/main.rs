@@ -86,17 +86,6 @@ async fn main() {
 }
 
 
-#[derive(Deserialize)]
-struct LoginForm {
-    username: String,
-    password: String,
-}
-
-#[debug_handler]
-async fn login_handler(
-    State(state): State<Arc<AppState>>,
-    Form(form): Form<LoginForm>,
-) -> Response {
     let credentials = UserCredentials {
         username: form.username.clone(),
         password: form.password.clone(),
@@ -144,34 +133,8 @@ async fn login_handler(
     }
 }
 
-async fn logout_handler(State(state): State<Arc<AppState>>) -> Response {
-    let data = json!({
-        "title": "Storybuilder",
-        "heading": "Storybuilder",
-    });
-    let rendered = state
-        .handlebars
-        .render("index", &data)
-        .expect("Failed to render template");
-
-    Response::builder()
-        .status(StatusCode::OK)
-        .header(
-            header::SET_COOKIE,
-            "auth=; Path=/; HttpOnly; Max-Age=0"
-        )
-        .header(header::CONTENT_TYPE, "text/html")
-        .body(rendered.into())
-        .unwrap()
-}
 
 
-#[debug_handler]
-async fn book_start_handler(
-    State(state): State<Arc<AppState>>,
-    headers: axum::http::HeaderMap,
-    axum::extract::Path(book_id): axum::extract::Path<u32>,
-) -> Response {
     // Check for valid auth cookie
     let mut authenticated = false;
     if let Some(cookie) = headers.get(COOKIE) {
@@ -270,11 +233,6 @@ async fn book_start_handler(
     }
 }
 
-async fn book_page_handler(
-    State(state): State<Arc<AppState>>,
-    headers: axum::http::HeaderMap,
-    axum::extract::Path((book_id, page_id)): axum::extract::Path<(u32, u32)>,
-) -> Response {
     // Check for valid auth cookie
     let mut authenticated = false;
     if let Some(cookie) = headers.get(COOKIE) {
@@ -378,10 +336,6 @@ async fn book_page_handler(
     }
 }
 
-async fn index_handler(
-    State(state): State<Arc<AppState>>,
-    headers: axum::http::HeaderMap,
-) -> Html<String> {
     let mut data = json!({
         "title": "Storybuilder",
         "heading": "Storybuilder",
