@@ -1,7 +1,4 @@
-use axum::{
-    routing::{get, post},
-    Router,
-};
+use axum::Router;
 use dotenvy::dotenv;
 use handlebars::Handlebars;
 use std::env;
