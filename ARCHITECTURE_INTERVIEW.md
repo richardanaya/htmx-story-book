@@ -31,3 +31,7 @@ A: Simplicity is a feature, not a bug. By choosing stable, well-understood techn
 Q: Any final thoughts on the architecture?
 
 A: This project demonstrates that you can create a well-structured, maintainable web application using simple, proven technologies. The key is thoughtful organization and careful selection of tools that solve real problems without introducing unnecessary complexity. Sometimes the best solution is the simplest one that gets the job done.
+
+Q: How does this architecture work with modern AI development tools?
+
+A: The clear separation of concerns and directory structure makes it particularly friendly for AI coding assistants like aider. Because each feature is contained in its own directory with both templates and handlers, it's easy to give AI tools the full context they need. For example, to work on the book feature, you can simply add "/src/pages/book" to the chat and the AI has everything it needs - templates, routing, and handlers - to understand and modify that feature. This organized, predictable structure helps AI tools provide more accurate and contextual assistance.
