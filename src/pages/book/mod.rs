@@ -19,8 +19,8 @@ pub fn register_templates(handlebars: &mut handlebars::Handlebars) {
 
 pub fn create_routes() -> Router<Arc<AppState>> {
     Router::new()
-        .route("/book/{book_id}", get(book_start_handler))
-        .route("/book/{book_id}/page/{page_id}", get(book_page_handler))
+        .route("/pages/book/{book_id}", get(book_start_handler))
+        .route("/pages/book/{book_id}/page/{page_id}", get(book_page_handler))
 }
 
 #[debug_handler]
