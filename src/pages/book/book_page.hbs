@@ -4,12 +4,13 @@
         <p>{{page.content}}</p>
         <div class="choices">
             {{#each page.choices}}
-                <div class="choice">
-                    <a href="/pages/book/{{../book_id}}/page/{{this.target_page_id}}"
-                       hx-get="/pages/book/{{../book_id}}/page/{{this.target_page_id}}"
-                       hx-target="#book-page" 
-                       hx-swap="innerHTML" 
-                       hx-push-url="true">
+                <div class="choice"
+                     onclick="window.location.href='/pages/book/{{../book_id}}/page/{{this.target_page_id}}'"
+                     hx-get="/pages/book/{{../book_id}}/page/{{this.target_page_id}}"
+                     hx-target="#book-page" 
+                     hx-swap="innerHTML" 
+                     hx-push-url="true">
+                    <a href="/pages/book/{{../book_id}}/page/{{this.target_page_id}}">
                         {{this.text}}
                     </a>
                 </div>
