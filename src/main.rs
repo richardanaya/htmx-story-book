@@ -10,7 +10,7 @@ use axum::{
 use tower_http::services::ServeDir;
 use handlebars::Handlebars;
 use serde::Deserialize;
-use crate::models::user::Claims;
+use crate::models::user::{Claims, UserCredentials};
 use serde_json::json;
 use std::sync::Arc;
 
@@ -27,8 +27,7 @@ fn get_jwt_secret() -> Vec<u8> {
         .into_bytes()
 }
 
-use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
-use std::time::{SystemTime, UNIX_EPOCH};
+use jsonwebtoken::{decode, DecodingKey, Validation};
 
 use crate::models::book::{Book, Page, Choice};
 
