@@ -17,7 +17,6 @@ pub fn get_jwt_secret() -> Vec<u8> {
         .into_bytes()
 }
 
-use crate::models::book::Book;
 
 pub struct AppState {
     handlebars: Handlebars<'static>,
