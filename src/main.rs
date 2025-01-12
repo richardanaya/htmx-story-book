@@ -35,6 +35,8 @@ use crate::models::book::{Book, Page, Choice};
 struct AppState {
     handlebars: Handlebars<'static>,
     library: Vec<Book>,
+    auth_service: Arc<services::auth_service::AuthService>,
+    book_service: Arc<services::book_service::BookService>,
 }
 
 fn generate_fake_library() -> Vec<Book> {
@@ -170,10 +172,9 @@ async fn main() {
     let state = Arc::new(AppState {
         handlebars,
         library: generate_fake_library(),
+        auth_service: Arc::new(services::auth_service::AuthService::new(get_jwt_secret())),
+        book_service: Arc::new(services::book_service::BookService {}),
     });
-
-    let auth_service = Arc::new(services::auth_service::AuthService::new(get_jwt_secret()));
-    let book_service = Arc::new(services::book_service::BookService {});
 
     let app = Router::new()
         .nest_service("/static", ServeDir::new("static"))
@@ -197,34 +198,18 @@ struct LoginForm {
     password: String,
 }
 
-fn validate_credentials(username: &str, password: &str) -> bool {
-    // For now, we have a single hardcoded user
-    // In a real application, this would check against a database
-    username == "richard" && password == "secret"
-}
-
 #[debug_handler]
 async fn login_handler(
     State(state): State<Arc<AppState>>,
     Form(form): Form<LoginForm>,
 ) -> Response {
-    if validate_credentials(&form.username, &form.password) {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as usize;
-            
-        let claims = Claims {
-            sub: form.username.clone(),
-            exp: now + 3600, // Token expires in 1 hour
-            iat: now,
-        };
+    let credentials = UserCredentials {
+        username: form.username.clone(),
+        password: form.password.clone(),
+    };
 
-        let token = encode(
-            &Header::default(),
-            &claims,
-            &EncodingKey::from_secret(&get_jwt_secret())
-        ).unwrap();
+    if state.auth_service.validate_credentials(&credentials) {
+        let token = state.auth_service.create_jwt(&form.username);
 
         let data = json!({
             "username": form.username,
@@ -302,11 +287,7 @@ async fn book_start_handler(
                 .find(|s| s.trim().starts_with("auth="))
                 .and_then(|s| s.trim().strip_prefix("auth="))
             {
-                if decode::<Claims>(
-                    token,
-                    &DecodingKey::from_secret(&get_jwt_secret()),
-                    &Validation::default()
-                ).is_ok() {
+                if state.auth_service.validate_jwt(token).is_some() {
                     authenticated = true;
                 }
             }
@@ -322,12 +303,10 @@ async fn book_start_handler(
     }
 
     let is_htmx = headers.get("HX-Request").is_some();
-    let book = state.library.iter()
-        .find(|b| b.id == book_id)
+    let book = state.book_service.get_book(&state.library, book_id)
         .expect("Book not found");
-
-    let current_page = book.pages.iter()
-        .find(|p| p.id == book.starting_page)
+        
+    let current_page = state.book_service.get_starting_page(book)
         .expect("Starting page not found");
 
     let data = json!({
@@ -432,12 +411,10 @@ async fn book_page_handler(
     }
 
     let is_htmx = headers.get("HX-Request").is_some();
-    let book = state.library.iter()
-        .find(|b| b.id == book_id)
+    let book = state.book_service.get_book(&state.library, book_id)
         .expect("Book not found");
-
-    let current_page = book.pages.iter()
-        .find(|p| p.id == page_id)
+        
+    let current_page = state.book_service.get_page(book, page_id)
         .expect("Page not found");
 
     let data = json!({
