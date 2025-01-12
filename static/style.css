@@ -52,6 +52,7 @@ nav[role="navigation"] li {
   margin: 0;
   width: 100%;
   display: block;
+  max-inline-size: unset;
 }
 
 button[variant="full-width"] {
