@@ -2,18 +2,16 @@ use axum::{
     debug_handler,
     extract::{Form, State},
     http::{header, StatusCode},
-    response::{Html, Response},
-    routing::{get, post},
+    response::Response,
+    routing::post,
     Router,
 };
-use jsonwebtoken::{decode, DecodingKey, Validation};
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
 
 use crate::{
-    get_jwt_secret,
-    models::user::{Claims, UserCredentials},
+    models::user::UserCredentials,
     AppState,
 };
 
