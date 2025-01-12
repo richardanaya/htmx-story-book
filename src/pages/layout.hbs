@@ -18,15 +18,7 @@
         </div>
     </header>
     <main>
-        {{#if main_content}}
-            {{{main_content}}}
-        {{else}}
-            {{#if username}}
-                {{> logged_in_content}}
-            {{else}}
-                {{> non_logged_in_content}}
-            {{/if}}
-        {{/if}}
+        {{{main_content}}}
     </main>
 </body>
 </html>

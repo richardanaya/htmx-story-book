@@ -30,10 +30,11 @@ pub async fn index_handler(
         "heading": "Storybuilder",
         "state": {
             "library": state.book_service.get_library()
-        }
+        },
+        "main_content": ""
     });
 
-    if let Some(cookie) = headers.get(header::COOKIE) {
+    let content_template = if let Some(cookie) = headers.get(header::COOKIE) {
         if let Some(cookie_str) = cookie.to_str().ok() {
             if let Some(token) = cookie_str
                 .split(';')
@@ -46,10 +47,24 @@ pub async fn index_handler(
                     &Validation::default(),
                 ) {
                     data["username"] = json!(token_data.claims.sub);
+                    "logged_in_content"
+                } else {
+                    "non_logged_in_content"
                 }
+            } else {
+                "non_logged_in_content"
             }
+        } else {
+            "non_logged_in_content"
         }
-    }
+    } else {
+        "non_logged_in_content"
+    };
+
+    data["main_content"] = json!(state
+        .handlebars
+        .render(content_template, &data)
+        .expect("Failed to render content template"));
 
     let rendered = state
         .handlebars
