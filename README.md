@@ -10,3 +10,4 @@ Technologies used:
 * HTMX
 * Axum
 * Handlebars
+* Open Props
