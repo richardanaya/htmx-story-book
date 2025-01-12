@@ -29,7 +29,7 @@ pub async fn index_handler(
         "title": "Storybuilder",
         "heading": "Storybuilder",
         "state": {
-            "library": &state.library
+            "library": state.book_service.get_library()
         }
     });
 

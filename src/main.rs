@@ -21,7 +21,6 @@ use crate::models::book::Book;
 
 pub struct AppState {
     handlebars: Handlebars<'static>,
-    library: Vec<Book>,
     auth_service: Arc<services::auth_service::AuthService>,
     book_service: Arc<services::book_service::BookService>,
 }
@@ -38,7 +37,6 @@ async fn main() {
     let book_service = Arc::new(services::book_service::BookService::new());
     let state = Arc::new(AppState {
         handlebars,
-        library: book_service.get_library().clone(),
         auth_service: Arc::new(services::auth_service::AuthService::new(get_jwt_secret())),
         book_service,
     });

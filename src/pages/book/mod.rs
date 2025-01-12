@@ -88,7 +88,7 @@ pub async fn book_start_handler(
             "heading": book.title,
             "username": null,
             "state": {
-                "library": &state.library
+                "library": state.book_service.get_library()
             }
         });
 
@@ -201,7 +201,7 @@ pub async fn book_page_handler(
             "heading": book.title,
             "username": null,
             "state": {
-                "library": &state.library
+                "library": state.book_service.get_library()
             }
         });
 
