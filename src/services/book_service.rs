@@ -1,14 +1,14 @@
-use crate::models::book::{Book, Page, Choice};
+use crate::models::book::{Book, Choice, Page};
 
 #[derive(Clone)]
 pub struct BookService {
-    library: Vec<Book>
+    library: Vec<Book>,
 }
 
 impl BookService {
     pub fn new() -> Self {
         Self {
-            library: Self::generate_fake_library()
+            library: Self::generate_fake_library(),
         }
     }
 
@@ -105,8 +105,9 @@ impl BookService {
                     },
                     Page {
                         id: 202,
-                        content: "You reach the control room. The main console is sparking! Do you:"
-                            .to_string(),
+                        content:
+                            "You reach the control room. The main console is sparking! Do you:"
+                                .to_string(),
                         choices: vec![
                             Choice {
                                 text: "Attempt to repair it".to_string(),
