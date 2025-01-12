@@ -1,15 +1,9 @@
 use axum::{
     debug_handler,
     extract::{Form, State},
-    http::{header, StatusCode},
-    http::header::COOKIE,
+    http::{header, StatusCode, header::COOKIE},
     response::{Html, Response},
 };
-use handlebars::Handlebars;
-use serde::Deserialize;
-use serde_json::json;
-use std::sync::Arc;
-use jsonwebtoken::{decode, DecodingKey, Validation};
 use handlebars::Handlebars;
 use serde::Deserialize;
 use serde_json::json;
